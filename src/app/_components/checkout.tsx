@@ -64,7 +64,9 @@ export default function Checkout() {
             customer: {
               email: session.data?.user.email as string,
             },
-            items: [{ priceId: "pri_01j86qhjafvgvdzbc1rwjc8czk", quantity: 1 }],
+            items: [{ priceId: "pri_01j90z5w22fdcxkst8w06jkagh", quantity: 1 }],
+            //pri_01j90z5w22fdcxkst8w06jkagh sub
+            //pri_01j86qhjafvgvdzbc1rwjc8czk onetime
             customData: {
               email: session.data?.user.email as string,
               id: session.data?.user.id as string,
