@@ -1,5 +1,6 @@
 import { relations, sql } from "drizzle-orm";
 import {
+  decimal,
   index,
   integer,
   pgTableCreator,
@@ -18,10 +19,11 @@ import { type AdapterAccount } from "next-auth/adapters";
  */
 export const createTable = pgTableCreator((name) => `devcondo_${name}`);
 
+// AUTH SCHEMA
 export const posts = createTable(
   "post",
   {
-    id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     name: varchar("name", { length: 256 }),
     createdById: varchar("created_by", { length: 255 })
       .notNull()
@@ -30,13 +32,13 @@ export const posts = createTable(
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
-      () => new Date()
+      () => new Date(),
     ),
   },
   (example) => ({
     createdByIdIdx: index("created_by_idx").on(example.createdById),
     nameIndex: index("name_idx").on(example.name),
-  })
+  }),
 );
 
 export const users = createTable("user", {
@@ -44,6 +46,7 @@ export const users = createTable("user", {
     .notNull()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
+  customerId: varchar("customer_id", { length: 255 }),
   name: varchar("name", { length: 255 }),
   email: varchar("email", { length: 255 }).notNull(),
   emailVerified: timestamp("email_verified", {
@@ -53,8 +56,13 @@ export const users = createTable("user", {
   image: varchar("image", { length: 255 }),
 });
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ many, one }) => ({
   accounts: many(accounts),
+  subscriptions: one(subscriptions, {
+    fields: [users.id],
+    references: [subscriptions.userId],
+  }), //for simplicity one active subscription only | can be many if needed
+  payments: many(payments), //many if subscription or have different offerings | one if one-time payment
 }));
 
 export const accounts = createTable(
@@ -83,7 +91,7 @@ export const accounts = createTable(
       columns: [account.provider, account.providerAccountId],
     }),
     userIdIdx: index("account_user_id_idx").on(account.userId),
-  })
+  }),
 );
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -106,7 +114,7 @@ export const sessions = createTable(
   },
   (session) => ({
     userIdIdx: index("session_user_id_idx").on(session.userId),
-  })
+  }),
 );
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -125,5 +133,102 @@ export const verificationTokens = createTable(
   },
   (vt) => ({
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-  })
+  }),
 );
+
+// PAYMENT GATEWAY SCHEMA
+// add subscription, transaction, and webhooks here
+export const subscriptions = createTable(
+  "subscription",
+  {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id),
+    subscriptionId: varchar("subscription_id", { length: 255 }).notNull(), //Paddle's subscription ID
+    status: varchar("status", { length: 255 }).notNull(),
+    startDate: timestamp("start_date", { withTimezone: true }).notNull(),
+    nextBillingDate: timestamp("next_billing_date", {
+      withTimezone: true,
+    }).notNull(),
+    endDate: timestamp("end_date", { withTimezone: true }).notNull(),
+    recurringAmount: decimal("recurring_amount", {
+      precision: 10,
+      scale: 2,
+    }).notNull(),
+    currency: varchar("currency", { length: 255 }).notNull(),
+    billingInterval: varchar("billing_interval", { length: 255 }).notNull(),
+  },
+  (subscription) => ({
+    userIdIdx: index("subscription_user_id_idx").on(subscription.userId),
+  }),
+);
+
+export const subscriptionsRelations = relations(
+  subscriptions,
+  ({ many, one }) => ({
+    user: one(users, {
+      fields: [subscriptions.userId],
+      references: [users.id],
+    }), //always the case
+    payment: many(payments), //many if subscription | one if one-time payment
+  }),
+);
+
+export const payments = createTable(
+  "payment",
+  {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id),
+    transactionId: varchar("transaction_id", { length: 255 }).notNull(),
+    subscriptionId: integer("subscription_id").references(
+      () => subscriptions.id,
+    ),
+    paymentType: varchar("payment_type", { length: 50 }).notNull(), //one-time or subscription
+    paymentStatus: varchar("payment_status", { length: 50 }).notNull(),
+    paymentMethod: varchar("payment_method", { length: 50 }),
+    status: varchar("status", { length: 50 }).notNull(),
+    amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+    currency: varchar("currency", { length: 50 }).notNull(),
+    paymentDate: timestamp("payment_date", { withTimezone: true }).notNull(),
+  },
+  (payment) => ({
+    userIdIdx: index("payment_user_id_idx").on(payment.userId),
+  }),
+);
+
+export const paymentsRelations = relations(payments, ({ one }) => ({
+  user: one(users, { fields: [payments.userId], references: [users.id] }), //always the case
+  subscription: one(subscriptions, {
+    fields: [payments.subscriptionId],
+    references: [subscriptions.id],
+  }), //always the case
+}));
+
+export const failedPayments = createTable("failed_payment", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => users.id),
+  transactionId: varchar("transaction_id", { length: 255 }).notNull(),
+  subscriptionId: integer("subscription_id").references(() => subscriptions.id),
+  paymentType: varchar("payment_type", { length: 50 }).notNull(), //one-time or subscripti
+  paymentStatus: varchar("payment_status", { length: 50 }).notNull(),
+  paymentMethod: varchar("payment_method", { length: 50 }),
+  status: varchar("status", { length: 50 }).notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 50 }).notNull(),
+  paymentDate: timestamp("payment_date", { withTimezone: true }).notNull(),
+});
+
+export const failedPaymentsRelations = relations(payments, ({ one }) => ({
+  user: one(users, { fields: [payments.userId], references: [users.id] }), //always the case
+  subscription: one(subscriptions, {
+    fields: [payments.subscriptionId],
+    references: [subscriptions.id],
+  }), //always the case
+}));
+
+// DATABASE SCHEMA

@@ -1,6 +1,9 @@
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { type DefaultSession, type NextAuthConfig } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
+import GoogleProvider from "next-auth/providers/google";
+import GithubProvider from "next-auth/providers/github";
+import Nodemailer from "next-auth/providers/nodemailer";
 
 import { db } from "@/server/db";
 import {
@@ -39,6 +42,20 @@ declare module "next-auth" {
 export const authConfig = {
   providers: [
     DiscordProvider,
+    GoogleProvider,
+    GithubProvider,
+    Nodemailer({
+      server: {
+        host: process.env.EMAIL_SERVER_HOST,
+        port: process.env.EMAIL_SERVER_PORT,
+        auth: {
+          user: process.env.EMAIL_SERVER_USER,
+          pass: process.env.EMAIL_SERVER_PASSWORD,
+        },
+      },
+      from: process.env.EMAIL_FROM,
+      maxAge: 600,
+    }),
     /**
      * ...add more providers here.
      *
@@ -61,6 +78,7 @@ export const authConfig = {
       user: {
         ...session.user,
         id: user.id,
+        // Add other properties her
       },
     }),
   },
