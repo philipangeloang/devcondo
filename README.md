@@ -1,7 +1,10 @@
 # Steps to apply boilerplate
 
 1. Create t3 app
-   `npm create t3-app@latest`
+
+```
+npm create t3-app@latest
+```
 
 2. [Create github repository](https://github.com/new)
 3. Commit and Push the created t3 app to the newly created repository
@@ -11,33 +14,35 @@
 5. Copy the boilerplate of env.js
 6. Fix env for Next Auth Providers
 
-> Discord
-> https://discord.com/developers/applications
-> Create App > OAuth2 > ID and Secret
-> Add Redirect to http://localhost:3000/api/auth/callback/discord
+```
+Discord
+https://discord.com/developers/applications
+Create App > OAuth2 > ID and Secret
+Add Redirect to http://localhost:3000/api/auth/callback/discord
 
-> Google
-> https://console.cloud.google.com
-> OAuth Consent Screen > Create Credentials > ID and Secret
-> Authorized Redirect URI
-> http://localhost:3000/api/auth/callback/google
+Google
+https://console.cloud.google.com
+OAuth Consent Screen > Create Credentials > ID and Secret
+Authorized Redirect URI
+http://localhost:3000/api/auth/callback/google
 
-> Github
-> https://github.com/settings/developers
-> OAuth Apps > New OAuth App
-> Authorized Redirect URI
-> http://localhost:3000/api/auth/callback/github
+Github
+https://github.com/settings/developers
+OAuth Apps > New OAuth App
+Authorized Redirect URI
+http://localhost:3000/api/auth/callback/github
 
-> Email (Nodemailer)
-> Just copy over and make a new app password for google
+Email (Nodemailer)
+Just copy over and make a new app password for google
 
-> Paddle
-> https://sandbox-vendors.paddle.com/authentication-v2
-> Get Paddle API Key, Token, and Webhook Token
-> Get Seller ID
+Paddle
+https://sandbox-vendors.paddle.com/authentication-v2
+Get Paddle API Key, Token, and Webhook Token
+Get Seller ID
 
-> Database
-> Get Connection URL
+Database
+Get Connection URL
+```
 
 7. Copy the boilerplate of index and schema and ensure the schema's prefix for table names are updated
    `src > server > db`
@@ -82,15 +87,17 @@ export default config;
 
 16. Completely copy all the folder/files of the following
 
-    > app > \_components except ui folder
-    > app > \_page-sections
-    > app > (pages)
-    > app > api > webhook
-    > app > \_components > checkout.tsx
-    > tailwind.config.ts
-    > src > styles > globals.css
-    > app > layout.tsx
-    > app > page.tsx
+```
+app > \_components except ui folder
+app > \_page-sections
+app > (pages)
+app > api > webhook
+app > \_components > checkout.tsx
+tailwind.config.ts
+src > styles > globals.css
+app > layout.tsx
+app > page.tsx
+```
 
 17. Test in local npm run dev
 18. Test authentication if working and if will push to db
