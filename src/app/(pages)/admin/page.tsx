@@ -4,6 +4,8 @@ import Checkout from "@/app/_components/checkout";
 
 import { api, HydrateClient } from "@/trpc/server";
 
+// https://dribbble.com/shots/21326778-Portfolio-Site
+
 const Admin = async () => {
   const session = await auth();
   return (
