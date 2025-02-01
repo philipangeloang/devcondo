@@ -9,7 +9,7 @@ const Hero = () => {
           <div className="flex flex-col gap-2">
             <h5 className="text-center">
               <Badge className="bg-skin-button-muted text-skin-inverted">
-                Lorem Ipsum Dolor Sit
+                version 0.0.1
               </Badge>
             </h5>
             <h1 className="text-skin-base xs:text-6xl/[1.2] text-center text-5xl font-black">
@@ -24,16 +24,13 @@ const Hero = () => {
               be seen.
             </p>
             <div className="flex justify-center gap-4">
-              <Button className="hover:bg-skin-button-accent-hover text-skin-base xs:w-[150px] bg-skin-button-accent font- w-full">
-                Get Started
-              </Button>
-              <Button className="bg-skin-button-muted text-skin-inverted xs:w-[150px] w-full">
-                Learn More
+              <Button className="hover:bg-skin-button-accent-hover text-skin-base text-md xs:w-[250px] xs:py-6 bg-skin-button-accent w-full p-20">
+                Create your Portfolio
               </Button>
             </div>
           </div>
         </div>
-        <div className="border-main-black dark:border-main-white h-[36rem] w-full rounded-lg border-2"></div>
+        <div className="h-[36rem] w-full rounded-lg border-2"></div>
       </div>
     </section>
   );
