@@ -7,7 +7,7 @@ import Themer from "../../_components/blocks/Themer";
 const Header = () => {
   return (
     <section className="w-full">
-      <nav className="mx-auto flex max-w-screen-xl justify-between p-4">
+      <nav className="mx-auto flex max-w-(--breakpoint-xl) justify-between p-4">
         <Brand />
         <Hamburger />
         <Navlinks />

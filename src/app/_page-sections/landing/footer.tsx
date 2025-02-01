@@ -10,7 +10,7 @@ import { Separator } from "../../_components/ui/separator";
 const Footer = () => {
   return (
     <section className="w-full bg-[#f2f1d8] py-5 dark:bg-[#0f0f0f] md:py-10">
-      <div className="mx-auto flex max-w-screen-xl flex-col p-4">
+      <div className="mx-auto flex max-w-(--breakpoint-xl) flex-col p-4">
         <div className="flex flex-col items-center md:flex-row md:items-start md:justify-between">
           <div className="flex w-[320px] flex-col items-center justify-center gap-4 md:items-start">
             <Brand />

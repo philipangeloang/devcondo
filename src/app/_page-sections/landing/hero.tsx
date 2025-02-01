@@ -4,7 +4,7 @@ import { Button } from "../../_components/ui/button";
 const Hero = () => {
   return (
     <section className="w-full">
-      <div className="mx-auto flex max-w-screen-xl flex-col justify-center p-4">
+      <div className="mx-auto flex max-w-(--breakpoint-xl) flex-col justify-center p-4">
         <div className="mx-auto my-12 flex max-w-[768px] flex-col justify-center gap-5">
           <div className="flex flex-col gap-2">
             <h5 className="text-center">
@@ -45,7 +45,7 @@ const Hero = () => {
 export default Hero;
 
 /* HERO DESIGN 1 CENTERED HEADING TEXT
-<div className="mx-auto flex max-w-screen-xl flex-col justify-center p-4">
+<div className="mx-auto flex max-w-(--breakpoint-xl) flex-col justify-center p-4">
   <div className="mx-auto my-12 flex max-w-[768px] flex-col justify-center gap-5">
      <div className="flex flex-col gap-2">
         <h5 className="text-center">
@@ -78,7 +78,7 @@ export default Hero;
 */
 
 /* HERO DESIGN 2 LEFT HEADING TEXT
- <div className="my mx-auto my-12 flex max-w-screen-xl flex-col items-center justify-center gap-10 p-4 lg:flex-row">
+ <div className="my mx-auto my-12 flex max-w-(--breakpoint-xl) flex-col items-center justify-center gap-10 p-4 lg:flex-row">
         <div className="flex flex-col gap-6 text-center lg:text-left">
           <h1 className="text-5xl font-black xs:text-6xl">
             Lorem ipsum dolor sit amet <span>consectetur</span>
