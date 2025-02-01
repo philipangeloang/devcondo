@@ -17,10 +17,7 @@ const Hamburger = () => {
       <SheetTrigger className="block md:hidden">
         <IconMenu2 />
       </SheetTrigger>
-      <SheetContent
-        side="left"
-        className="w-[275px] bg-main-white dark:bg-main-black"
-      >
+      <SheetContent side="left" className="bg-skin-fill w-[275px]">
         <div className="flex flex-col">
           <Brand />
           {links.map((link) => (

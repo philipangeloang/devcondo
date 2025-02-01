@@ -145,3 +145,7 @@ app > page.tsx
 
 1. Authentication
 2. Payment gateway
+
+### Extra Notes
+
+UI components made by shadcn as of tailwind v4 will override dark class of theming. Ensure to remove dark: on defaults there

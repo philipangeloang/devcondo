@@ -24,14 +24,11 @@ const Hero = () => {
               be seen.
             </p>
             <div className="flex justify-center gap-4">
-              <Button className="hover:bg-skin-button-accent-hover text-skin-base xs:w-[150px] w-full bg-[var(--color-button-accent)]">
+              <Button className="hover:bg-skin-button-accent-hover text-skin-base xs:w-[150px] bg-skin-button-accent font- w-full">
                 Get Started
               </Button>
               <Button className="bg-skin-button-muted text-skin-inverted xs:w-[150px] w-full">
                 Learn More
-              </Button>
-              <Button style={{ backgroundColor: "var(--color-button-accent)" }}>
-                Test Button
               </Button>
             </div>
           </div>

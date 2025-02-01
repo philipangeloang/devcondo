@@ -9,7 +9,7 @@ import { Separator } from "../../_components/ui/separator";
 
 const Footer = () => {
   return (
-    <section className="w-full bg-[#f2f1d8] py-5 dark:bg-[#0f0f0f] md:py-10">
+    <section className="bg-skin-fill-accent w-full md:py-10">
       <div className="mx-auto flex max-w-(--breakpoint-xl) flex-col p-4">
         <div className="flex flex-col items-center md:flex-row md:items-start md:justify-between">
           <div className="flex w-[320px] flex-col items-center justify-center gap-4 md:items-start">
@@ -22,7 +22,7 @@ const Footer = () => {
           </div>
 
           <div className="my-8 flex flex-col gap-3 text-center md:my-0 md:text-left">
-            <h1 className="text-sm font-bold uppercase tracking-wider">
+            <h1 className="text-sm font-bold tracking-wider uppercase">
               Links
             </h1>
             <ul className="flex flex-col gap-2 text-sm">
@@ -33,7 +33,7 @@ const Footer = () => {
           </div>
 
           <div className="my-8 flex flex-col gap-3 text-center md:my-0 md:text-left">
-            <h1 className="text-sm font-bold uppercase tracking-wider">More</h1>
+            <h1 className="text-sm font-bold tracking-wider uppercase">More</h1>
             <ul className="flex flex-col gap-2 text-sm">
               <li className="leading-7">Project 1</li>
               <li className="leading-7">Project 2</li>
@@ -45,7 +45,7 @@ const Footer = () => {
           </div>
 
           <div className="my-8 flex flex-col gap-3 text-center md:my-0 md:text-left">
-            <h1 className="text-sm font-bold uppercase tracking-wider">
+            <h1 className="text-sm font-bold tracking-wider uppercase">
               Legal
             </h1>
             <ul className="flex flex-col gap-2 text-sm">

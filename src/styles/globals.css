@@ -1,11 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap')
-layer(base);
-
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+  --font-display: "Satoshi", "sans-serif";
+
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
 
@@ -14,10 +13,12 @@ layer(base);
   --text-color-skin-inverted: var(--color-text-inverted);
 
   --background-color-skin-fill: var(--color-fill);
+  --background-color-skin-fill-accent: var(--color-fill-accent);
   --background-color-skin-button-accent: var(--color-button-accent);
   --background-color-skin-button-accent-hover: var(--color-button-accent-hover);
   --background-color-skin-button-muted: var(--color-button-muted);
 
+  /* Add custom breakpoints */
   --breakpoint-xs: 425px;
 
   @keyframes accordion-down {
@@ -44,19 +45,8 @@ layer(base);
   @media (width >= --theme(--breakpoint-xs)) {
     max-width: none;
   }
-  @media (width >= 1400px) {
-    max-width: 1400px;
-  }
 }
 
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
 @layer base {
   *,
   ::after,
@@ -67,21 +57,13 @@ layer(base);
   }
 }
 
-@layer utilities {
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
-  }
-}
-
 @layer base {
   :root {
     --color-text-base: #171717;
     --color-text-muted: #646363;
     --color-text-inverted: #fcfaf1;
     --color-fill: #fcfaf1;
+    --color-fill-accent: #f2f1d8;
     --color-button-accent: #f5b553;
     --color-button-accent-hover: #f0b864;
     --color-button-muted: #171717;
@@ -92,6 +74,7 @@ layer(base);
     --color-text-muted: #b5b5b5;
     --color-text-inverted: #171717;
     --color-fill: #171717;
+    --color-fill-accent: #0f0f0f;
     --color-button-accent: #f0b864;
     --color-button-accent-hover: #f5b553;
     --color-button-muted: #fcfaf1;
