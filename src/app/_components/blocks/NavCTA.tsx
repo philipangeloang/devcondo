@@ -19,7 +19,7 @@ const NavCTA = () => {
     // </Button>
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="w-full bg-light-yellow text-main-black hover:bg-light-yellow/80 dark:bg-dark-yellow dark:text-main-white dark:hover:bg-dark-yellow/80">
+        <Button className="bg-skin-button-accent hover:bg-skin-button-accent-hover text-skin-base w-full">
           Log in
         </Button>
       </DialogTrigger>

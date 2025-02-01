@@ -5,7 +5,7 @@ import { ThemeProvider } from "./_components/providers/theme-provider";
 import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
-  title: "Saas Boilerplate",
+  title: "devcondo",
   description: "Developers' place to live",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
@@ -15,7 +15,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="bg-main-white dark:bg-main-black">
+      <body>
         <SessionProvider>
           <ThemeProvider
             attribute="class"

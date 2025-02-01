@@ -9,3 +9,25 @@
   box-sizing: border-box;
   font-family: "Inter", sans-serif;
 }
+
+@layer base {
+  :root {
+    --color-text-base: #171717;
+    --color-text-muted: #646363;
+    --color-text-inverted: #fcfaf1;
+    --color-fill: #fcfaf1;
+    --color-button-accent: #f5b553;
+    --color-button-accent-hover: #f0b864;
+    --color-button-muted: #171717;
+  }
+
+  .dark {
+    --color-text-base: #fcfaf1;
+    --color-text-muted: #b5b5b5;
+    --color-text-inverted: #171717;
+    --color-fill: #171717;
+    --color-button-accent: #f0b864;
+    --color-button-accent-hover: #f5b553;
+    --color-button-muted: #fcfaf1;
+  }
+}

@@ -8,24 +8,30 @@ const Hero = () => {
         <div className="mx-auto my-12 flex max-w-[768px] flex-col justify-center gap-5">
           <div className="flex flex-col gap-2">
             <h5 className="text-center">
-              <Badge className="">Lorem Ipsum Dolor Sit</Badge>
+              <Badge className="bg-skin-button-muted text-skin-inverted">
+                Lorem Ipsum Dolor Sit
+              </Badge>
             </h5>
-            <h1 className="xs:text-6xl text-center text-5xl font-black">
-              Lorem ipsum dolor sit amet <span>consectetur</span>
+            <h1 className="text-skin-base xs:text-6xl/[1.2] text-center text-5xl font-black">
+              Showcase your <br /> Portfolio in Minutes
             </h1>
           </div>
           <div className="flex flex-col gap-4">
-            <p className="text-main-black/60 dark:text-main-white/60 text-center">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut
-              malesuada, nunc nec auctor lacinia, libero odio ultricies libero,
-              nec vulputate mi felis nec erat.
+            <p className="text-skin-muted text-center">
+              Showcase your skills, projects, and experience with a sleek,
+              professional portfolio—no hassle, just results. Customize
+              effortlessly and connect with opportunities. Your work deserves to
+              be seen.
             </p>
             <div className="flex justify-center gap-4">
-              <Button className="bg-light-yellow text-main-black hover:bg-light-yellow/80 dark:bg-dark-yellow dark:text-main-white dark:hover:bg-dark-yellow/80 xs:w-[150px] w-full">
+              <Button className="hover:bg-skin-button-accent-hover text-skin-base xs:w-[150px] w-full bg-[var(--color-button-accent)]">
                 Get Started
               </Button>
-              <Button className="text-main-white dark:text-main-black xs:w-[150px] w-full">
+              <Button className="bg-skin-button-muted text-skin-inverted xs:w-[150px] w-full">
                 Learn More
+              </Button>
+              <Button style={{ backgroundColor: "var(--color-button-accent)" }}>
+                Test Button
               </Button>
             </div>
           </div>

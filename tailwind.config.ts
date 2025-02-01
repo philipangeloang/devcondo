@@ -2,7 +2,7 @@
 import type { Config } from "tailwindcss";
 
 const config = {
-  darkMode: ["class"],
+  darkMode: "class",
   content: [
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
@@ -34,13 +34,22 @@ const config = {
         "accordion-up": "accordion-up 0.2s ease-out",
       },
       // Add your global color palette here
-      colors: {
-        "main-black": "#171717",
-        "main-white": "#FCFAF1",
-        "main-gray": "#CACACA",
-        "light-yellow": "#F5B553",
-        "dark-yellow": "#bf8e43",
+      textColor: {
+        skin: {
+          base: "var(--color-text-base)",
+          muted: "var(--color-text-muted)",
+          inverted: "var(--color-text-inverted)",
+        },
       },
+      backgroundColor: {
+        skin: {
+          fill: "var(--color-fill)",
+          "button-accent": "var(--color-button-accent)",
+          "button-accent-hover": "var(--color-button-accent-hover)",
+          "button-muted": "var(--color-button-muted)",
+        },
+      },
+
       screens: {
         xs: "425px",
       },
