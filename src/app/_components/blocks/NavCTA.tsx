@@ -19,7 +19,7 @@ const NavCTA = () => {
     // </Button>
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="bg-skin-button-accent hover:bg-skin-button-accent-hover text-skin-base w-full">
+        <Button className="bg-skin-button-accent hover:bg-skin-button-accent-hover text-skin-base w-full cursor-pointer">
           Log in
         </Button>
       </DialogTrigger>
@@ -33,7 +33,7 @@ const NavCTA = () => {
           <GoogleSignin />
           <Separator className="w-full" />
           <EmailSignin />
-          <p className="mt-5 px-5 text-xs text-main-gray">
+          <p className="text-main-gray mt-5 px-5 text-xs">
             By clicking continue, you agree to our Terms of Service and Privacy
             Policy.
           </p>

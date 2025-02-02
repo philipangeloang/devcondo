@@ -24,7 +24,7 @@ const Hero = () => {
               be seen.
             </p>
             <div className="flex justify-center gap-4">
-              <Button className="hover:bg-skin-button-accent-hover text-skin-base text-md xs:w-[250px] xs:py-6 bg-skin-button-accent w-full p-20">
+              <Button className="hover:bg-skin-button-accent-hover text-skin-base text-md xs:w-[250px] xs:py-6 bg-skin-button-accent w-full cursor-pointer p-20">
                 Create your Portfolio
               </Button>
             </div>

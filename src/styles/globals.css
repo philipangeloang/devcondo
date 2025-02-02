@@ -6,15 +6,22 @@
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
 
+  --color-card-initial: var(--color-card-initial);
+  --color-card-final: var(--color-card-final);
+
   --text-color-skin-base: var(--color-text-base);
   --text-color-skin-muted: var(--color-text-muted);
   --text-color-skin-inverted: var(--color-text-inverted);
 
   --background-color-skin-fill: var(--color-fill);
   --background-color-skin-fill-accent: var(--color-fill-accent);
+  --background-color-skin-fill-inverted: var(--color-text-base);
   --background-color-skin-button-accent: var(--color-button-accent);
   --background-color-skin-button-accent-hover: var(--color-button-accent-hover);
   --background-color-skin-button-muted: var(--color-button-muted);
+
+  --border-color-skin-base: var(--color-fill-accent);
+  --border-color-skin-inverted: var(--color-fill);
 
   /* Add custom breakpoints */
   --breakpoint-xs: 425px;
@@ -63,6 +70,8 @@
     --color-button-accent: #f5b553;
     --color-button-accent-hover: #f0b864;
     --color-button-muted: #171717;
+    --color-card-initial: oklch(0.656 0.241 354.308);
+    --color-card-final: oklch(0.585 0.233 277.117);
   }
 
   .dark {
@@ -74,5 +83,7 @@
     --color-button-accent: #f0b864;
     --color-button-accent-hover: #f5b553;
     --color-button-muted: #fcfaf1;
+    --color-card-initial: oklch(0.656 0.241 354.308);
+    --color-card-final: oklch(0.585 0.233 277.117);
   }
 }

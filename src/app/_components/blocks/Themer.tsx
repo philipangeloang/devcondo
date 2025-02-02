@@ -11,7 +11,7 @@ const Themer = () => {
 
   return (
     <Button
-      className="aspect-square w-full bg-white p-1 dark:bg-black"
+      className="aspect-square w-full cursor-pointer bg-white p-1 dark:bg-black"
       variant="ghost"
       onClick={() => {
         setTheme(theme === "light" ? "dark" : "light");
