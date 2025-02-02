@@ -6,8 +6,8 @@
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
 
-  --color-card-initial: var(--color-card-initial);
-  --color-card-final: var(--color-card-final);
+  --color-card-skin-initial: var(--color-card-initial);
+  --color-card-skin-final: var(--color-card-final);
 
   --text-color-skin-base: var(--color-text-base);
   --text-color-skin-muted: var(--color-text-muted);

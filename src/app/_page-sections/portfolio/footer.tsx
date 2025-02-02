@@ -1,3 +1,4 @@
+import Themer from "@/app/_components/blocks/Themer";
 import {
   IconBrandGithub,
   IconBrandInstagram,
@@ -5,15 +6,9 @@ import {
   IconBrandX,
 } from "@tabler/icons-react";
 
-const Header = () => {
+const Footer = () => {
   return (
     <div className="border-skin-base bg-skin-fill col-span-12 flex w-full items-center justify-between rounded-lg border p-4 shadow-md">
-      <h3 className="text-2xl font-bold">Philip</h3>
-      <ul className="flex gap-8">
-        <li>Home</li>
-        <li>Projects</li>
-        <li>Resume</li>
-      </ul>
       <div className="flex gap-2">
         <IconBrandX size="36" className="bg-skin-fill-accent rounded-lg p-2" />
         <IconBrandInstagram
@@ -29,8 +24,9 @@ const Header = () => {
           className="bg-skin-fill-accent rounded-lg p-2"
         />
       </div>
+      <Themer />
     </div>
   );
 };
 
-export default Header;
+export default Footer;
