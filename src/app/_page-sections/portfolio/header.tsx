@@ -7,7 +7,7 @@ import {
 
 const Header = () => {
   return (
-    <div className="border-skin-base col-span-12 flex items-center justify-between rounded-lg border p-4">
+    <div className="border-skin-base bg-skin-fill col-span-12 flex w-full items-center justify-between rounded-lg border p-4">
       <h3 className="text-2xl font-bold">Philip</h3>
       <ul className="flex gap-8">
         <li>Home</li>

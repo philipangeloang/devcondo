@@ -1,4 +1,5 @@
 import { Button } from "@/app/_components/ui/button";
+import { ScrollArea } from "@/app/_components/ui/scroll-area";
 import {
   IconBrandGithub,
   IconBrandInstagram,
@@ -16,8 +17,8 @@ const projects = Array.from({ length: 20 }, (_, index) => ({
 
 const Projects = () => {
   return (
-    <main className="relative mx-auto w-full max-w-5xl gap-4 p-4">
-      <div className="border-skin-base bg-skin-fill sticky top-4 z-40 flex w-full items-center justify-between rounded-lg border p-4">
+    <main className="mx-auto grid w-full max-w-5xl grid-cols-12 gap-4 p-4">
+      <div className="border-skin-base bg-skin-fill col-span-12 flex w-full items-center justify-between rounded-lg border p-4">
         <h3 className="text-2xl font-bold">Philip</h3>
         <ul className="flex gap-8">
           <li>Home</li>
@@ -44,23 +45,21 @@ const Projects = () => {
         </div>
       </div>
 
-      <div className="relative flex min-h-screen gap-4">
-        {/* Sticky Left Container */}
-        <div className="border-skin-base sticky top-[102px] flex h-[calc(100vh-118px)] w-[50%] flex-col justify-between rounded-lg border p-8">
-          <p className="opacity-0">Push below</p>
-          <div className="flex flex-col gap-8 pr-16">
-            <h1 className="text-2xl font-semibold">
-              Over the past few years, I&apos;ve worked on various projects.
-              Here&apos;s few of my best
-            </h1>
-            <Button className="bg-skin-button-muted text-skin-inverted w-[150px] cursor-pointer">
-              Get in touch
-            </Button>
-          </div>
+      <div className="border-skin-base col-span-6 flex h-[calc(100vh-118px)] flex-col justify-between rounded-lg border p-8">
+        <p className="opacity-0">Push below</p>
+        <div className="flex flex-col gap-8 pr-16">
+          <h1 className="text-2xl font-semibold">
+            Over the past few years, I&apos;ve worked on various projects.
+            Here&apos;s few of my best
+          </h1>
+          <Button className="bg-skin-button-muted text-skin-inverted w-[150px] cursor-pointer">
+            Get in touch
+          </Button>
         </div>
+      </div>
 
-        {/* Scrollable Right Content */}
-        <div className="mt-[16px] flex flex-1 flex-col gap-4">
+      <ScrollArea className="col-span-6 h-[calc(100vh-118px)]">
+        <div className="flex flex-col gap-4">
           {projects.map((project) => (
             <div
               key={project.id}
@@ -76,7 +75,7 @@ const Projects = () => {
             </div>
           ))}
         </div>
-      </div>
+      </ScrollArea>
     </main>
   );
 };
