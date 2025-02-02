@@ -5,16 +5,27 @@ import Brand from "./Brand";
 import NavCTA from "./NavCTA";
 import Themer from "./Themer";
 
-const links = [
-  { title: "Features", href: "#features" },
-  { title: "Pricing", href: "#pricing" },
-  { title: "Contact", href: "#contact" },
-];
+type LinkItem = {
+  title: string;
+  href: string;
+};
 
-const Hamburger = () => {
+type HamburgerProps = {
+  alwaysVisible?: boolean;
+  links: LinkItem[];
+  showNavCTA?: boolean; // New prop to control NavCTA visibility
+};
+
+const Hamburger = ({
+  alwaysVisible = false,
+  links,
+  showNavCTA = true,
+}: HamburgerProps) => {
   return (
     <Sheet>
-      <SheetTrigger className="block md:hidden">
+      <SheetTrigger
+        className={`${alwaysVisible ? "block" : "block md:hidden"}`}
+      >
         <IconMenu2 />
       </SheetTrigger>
       <SheetContent side="left" className="bg-skin-fill w-[275px]">
@@ -31,7 +42,8 @@ const Hamburger = () => {
           ))}
 
           <div className="mt-3 flex w-full items-center gap-4">
-            <NavCTA />
+            {/* This is to flag it when a user is already using the dashboard/logged in */}
+            {showNavCTA && <NavCTA />}
             <Themer />
           </div>
         </div>
