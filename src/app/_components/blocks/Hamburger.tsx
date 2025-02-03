@@ -1,6 +1,11 @@
 "use client";
 
-import { Sheet, SheetContent, SheetTrigger } from "@/app/_components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/app/_components/ui/sheet";
 import { Button } from "@/app/_components/ui/button";
 import { Separator } from "@/app/_components/ui/separator";
 import { IconMenu2 } from "@tabler/icons-react";
@@ -38,14 +43,12 @@ const Hamburger = ({
         <IconMenu2 className="text-skin-base h-7 w-7" />
       </SheetTrigger>
       <SheetContent side="left" className="bg-skin-fill w-[280px] p-6">
-        {/* HEADER */}
+        <SheetTitle className="sr-only"></SheetTitle>{" "}
+        {/* Hide title from screen readers to avoid errors */}
         <div className="flex items-center justify-between">
           {brand} {/* Render custom brand if provided */}
         </div>
-
         <Separator className="my-4" />
-
-        {/* NAV LINKS */}
         <nav className="flex flex-col gap-3">
           {links.map((link) => (
             <Link
@@ -58,7 +61,6 @@ const Hamburger = ({
             </Link>
           ))}
         </nav>
-
         {/* CTA BUTTONS & THEMING */}
         <div className="mt-auto flex flex-col gap-4 pt-6">
           {showNavCTA && <NavCTA />}

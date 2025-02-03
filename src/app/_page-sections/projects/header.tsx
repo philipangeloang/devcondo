@@ -1,9 +1,9 @@
 import Hamburger from "@/app/_components/blocks/Hamburger";
 
 const links = [
-  { title: "Home", href: "/home" },
-  { title: "Projects", href: "/projects" },
-  { title: "Resume", href: "/resume" },
+  { title: "Home", href: "/admin" },
+  { title: "Projects", href: "/user/projects" },
+  { title: "Resume", href: "/user/resume" },
 ];
 
 const Header = () => {
