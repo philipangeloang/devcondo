@@ -11,17 +11,10 @@ import {
   Phone,
 } from "lucide-react";
 
-const projects = Array.from({ length: 20 }, (_, index) => ({
-  id: index,
-  title: `Project Title ${index + 1}`,
-  description:
-    "This is a React JS application which gives you information about the food items when a food emoji is given as input. This application is free.",
-  tech: "React JS",
-}));
 const Content = () => {
   return (
     <>
-      <ScrollArea className="col-span-12 rounded-lg bg-white p-8 data-[theme=dark]:border-gray-200 data-[theme=dark]:bg-white sm:h-[calc(100vh-204px)] [&_*]:!text-black">
+      <ScrollArea className="col-span-12 rounded-lg bg-white p-8 sm:h-[calc(100vh-204px)] [&_*]:!text-black">
         <div className="mx-auto max-w-4xl space-y-8">
           {/* Header Section */}
           <div className="space-y-4">
@@ -74,7 +67,7 @@ const Content = () => {
               ].map((skill) => (
                 <Badge
                   key={skill}
-                  className="bg-gray-100 text-gray-900 hover:bg-gray-200"
+                  className="bg-gray-100 text-gray-900 hover:bg-gray-200 dark:border-transparent dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200"
                 >
                   {skill}
                 </Badge>
@@ -85,8 +78,8 @@ const Content = () => {
           {/* Experience Section */}
           <section className="space-y-6">
             <h3 className="text-xl font-semibold">Experience</h3>
-            <Card className="border-gray-200 bg-white">
-              <CardContent className="p-6 [&_*]:!text-black">
+            <Card className="border-gray-200 bg-white dark:border-gray-200 dark:bg-white">
+              <CardContent className="p-6 [&_*]:!text-black dark:[&_*]:!text-black">
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
@@ -115,8 +108,8 @@ const Content = () => {
                 </ul>
               </CardContent>
             </Card>
-            <Card className="border-gray-200 bg-white">
-              <CardContent className="p-6 [&_*]:!text-black">
+            <Card className="border-gray-200 bg-white dark:border-gray-200 dark:bg-white">
+              <CardContent className="p-6 [&_*]:!text-black dark:[&_*]:!text-black">
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
@@ -143,8 +136,8 @@ const Content = () => {
           {/* Education Section */}
           <section className="space-y-6">
             <h3 className="text-xl font-semibold">Education</h3>
-            <Card className="border-gray-200 bg-white">
-              <CardContent className="p-6 [&_*]:!text-black">
+            <Card className="border-gray-200 bg-white dark:border-gray-200 dark:bg-white">
+              <CardContent className="p-6 [&_*]:!text-black dark:[&_*]:!text-black">
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
@@ -170,13 +163,13 @@ const Content = () => {
             <h3 className="text-xl font-semibold">Certifications</h3>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Badge className="bg-gray-100 text-gray-900 hover:bg-gray-200">
+                <Badge className="bg-gray-100 text-gray-900 hover:bg-gray-200 dark:border-transparent dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200">
                   AWS Certified Developer
                 </Badge>
                 <span className="text-sm text-gray-600">2023</span>
               </div>
               <div className="flex items-center gap-2">
-                <Badge className="bg-gray-100 text-gray-900 hover:bg-gray-200">
+                <Badge className="bg-gray-100 text-gray-900 hover:bg-gray-200 dark:border-transparent dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200">
                   Google Cloud Professional Developer
                 </Badge>
                 <span className="text-sm text-gray-600">2022</span>
