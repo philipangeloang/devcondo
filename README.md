@@ -9,7 +9,7 @@ npm create t3-app@latest
 2. [Create github repository](https://github.com/new)
 3. Commit and Push the created t3 app to the newly created repository
 4. Install the following dependencies
-   `npm install next-themes nodemailer @tabler-icons-react @neondatabase/serverless @paddle/paddle-js @paddle/paddle-node-sdk`
+   `npm install next-themes nodemailer @tabler-icons-react @neondatabase/serverless @paddle/paddle-js @paddle/paddle-node-sdk uploadthing @uploadthing/react`
 
 5. Copy the boilerplate of env.js
 6. Fix env for Next Auth Providers
@@ -39,6 +39,10 @@ Paddle
 https://sandbox-vendors.paddle.com/authentication-v2
 Get Paddle API Key, Token, and Webhook Token
 Get Seller ID
+
+UploadThing
+https://uploadthing.com/dashboard/[team]/[id]/api-keys
+Get Uploadthing token and Secret Key
 
 Database
 Get Connection URL
@@ -92,6 +96,8 @@ app > \_components except ui folder
 app > \_page-sections
 app > (pages)
 app > api > webhook
+app > api > uploadthing
+utils > uploadthing.ts
 app > \_components > checkout.tsx
 tailwind.config.ts
 src > styles > globals.css
@@ -123,6 +129,7 @@ app > page.tsx
 9. add shadcn
 10. next.config.js ignore build er
 11. paddle
+12. uploadthing
 
 ## Server
 
@@ -140,6 +147,7 @@ app > page.tsx
 5. @neondatabase/serverless
 6. @paddle/paddle-js
 7. @paddle/paddle-node-sdk
+8. uploadthing @uploadthing/react
 
 ## Main things
 
