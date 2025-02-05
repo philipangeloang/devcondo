@@ -4,7 +4,7 @@ import {
   IconBrandLinkedin,
   IconBrandX,
 } from "@tabler/icons-react";
-import Brand from "../../_components/blocks/Brand";
+import Brand from "../../_components/blocks/brand";
 import { Separator } from "../../_components/ui/separator";
 
 const Footer = () => {

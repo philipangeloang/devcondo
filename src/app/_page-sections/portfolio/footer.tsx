@@ -1,4 +1,4 @@
-import Themer from "@/app/_components/blocks/Themer";
+import Themer from "@/app/_components/blocks/themer";
 import {
   IconBrandGithub,
   IconBrandInstagram,

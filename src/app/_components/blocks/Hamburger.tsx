@@ -11,9 +11,9 @@ import { Separator } from "@/app/_components/ui/separator";
 import { IconMenu2 } from "@tabler/icons-react";
 import Link from "next/link";
 import { useState } from "react";
-import Brand from "./Brand";
-import Themer from "./Themer";
-import NavCTA from "./NavCTA";
+import Brand from "./brand";
+import Themer from "./themer";
+import NavCTA from "./nav-cta";
 
 type LinkItem = {
   title: string;

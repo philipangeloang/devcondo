@@ -1,4 +1,4 @@
-import Hamburger from "@/app/_components/blocks/Hamburger";
+import Hamburger from "@/app/_components/blocks/hamburger";
 
 const links = [
   { title: "Home", href: "/admin" },

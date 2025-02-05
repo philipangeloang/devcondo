@@ -1,6 +1,4 @@
-import { Button } from "@/app/_components/ui/button";
 import { ScrollArea } from "@/app/_components/ui/scroll-area";
-import { IconHandClick } from "@tabler/icons-react";
 import {
   Tabs,
   TabsContent,
@@ -14,12 +12,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/_components/ui/card";
+import AboutForm from "@/app/_components/blocks/about-form";
+import { ProjectsForm } from "@/app/_components/blocks/projects-form";
+import { SkillsForm } from "@/app/_components/blocks/skills-form";
+import { ResumeForm } from "@/app/_components/blocks/resume-form";
+import { SettingsForm } from "@/app/_components/blocks/settings-form";
 
 const Content = () => {
   return (
     <ScrollArea className="col-span-12 sm:h-[calc(100vh-204px)]">
       <Tabs defaultValue="about" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="bg-skin-fill grid w-full grid-cols-5">
           <TabsTrigger value="about">About</TabsTrigger>
           <TabsTrigger value="projects">Projects</TabsTrigger>
           <TabsTrigger value="skills">Skills</TabsTrigger>
@@ -34,7 +37,9 @@ const Content = () => {
                 Manage your personal information and introduction
               </CardDescription>
             </CardHeader>
-            <CardContent>{/* <AboutForm /> */} About</CardContent>
+            <CardContent>
+              <AboutForm />
+            </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="projects">
@@ -45,7 +50,9 @@ const Content = () => {
                 Add and manage your portfolio projects
               </CardDescription>
             </CardHeader>
-            <CardContent>{/* <ProjectsForm />  */} Projects</CardContent>
+            <CardContent>
+              <ProjectsForm />
+            </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="skills">
@@ -56,7 +63,9 @@ const Content = () => {
                 Update your technical skills and expertise
               </CardDescription>
             </CardHeader>
-            <CardContent>{/* <SkillsForm />  */} Skills</CardContent>
+            <CardContent>
+              <SkillsForm />
+            </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="resume">
@@ -67,7 +76,9 @@ const Content = () => {
                 Edit your professional experience and resume details
               </CardDescription>
             </CardHeader>
-            <CardContent>{/* <ResumeForm />  */} Resume</CardContent>
+            <CardContent>
+              <ResumeForm />
+            </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="settings">
@@ -78,7 +89,9 @@ const Content = () => {
                 Customize the appearance and behavior of your portfolio
               </CardDescription>
             </CardHeader>
-            <CardContent>{/* <SettingsForm />  */} Settings</CardContent>
+            <CardContent>
+              <SettingsForm />
+            </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
