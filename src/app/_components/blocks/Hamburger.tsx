@@ -11,7 +11,7 @@ import { IconMenu2 } from "@tabler/icons-react";
 import Link from "next/link";
 import { useState } from "react";
 import Brand from "./brand";
-import Themer from "./Themer";
+import Themer from "./themer";
 import NavCTA from "./nav-cta";
 
 type LinkItem = {
