@@ -30,7 +30,7 @@ const Hamburger = ({
   alwaysVisible = false,
   links,
   showNavCTA = true,
-  brand = <Brand />, // Default to <Brand /> if no customBrand is provided
+  brand = <Brand />, // Default to <Brand /> if no customBrand is provide
 }: HamburgerProps) => {
   const [open, setOpen] = useState(false);
 
