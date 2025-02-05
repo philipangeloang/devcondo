@@ -6,13 +6,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/app/_components/ui/sheet";
-import { Button } from "@/app/_components/ui/button";
 import { Separator } from "@/app/_components/ui/separator";
 import { IconMenu2 } from "@tabler/icons-react";
 import Link from "next/link";
 import { useState } from "react";
 import Brand from "./brand";
-import Themer from "./themer";
+import Themer from "./Themer";
 import NavCTA from "./nav-cta";
 
 type LinkItem = {

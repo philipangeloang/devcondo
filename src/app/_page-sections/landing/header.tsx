@@ -1,8 +1,8 @@
-import Brand from "../../_components/blocks/brand";
-import Hamburger from "../../_components/blocks/hamburger";
-import NavCTA from "../../_components/blocks/nav-cta";
-import Navlinks from "../../_components/blocks/nav-links";
-import Themer from "../../_components/blocks/themer";
+import Brand from "@/app/_components/blocks/brand";
+import Hamburger from "@/app/_components/blocks/hamburger";
+import NavCTA from "@/app/_components/blocks/nav-cta";
+import Navlinks from "@/app/_components/blocks/nav-links";
+import Themer from "@/app/_components/blocks/themer";
 
 const links = [
   { title: "Features", href: "#features" },
