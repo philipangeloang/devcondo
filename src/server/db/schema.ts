@@ -8,8 +8,10 @@ import {
   text,
   timestamp,
   varchar,
+  boolean,
+  json,
 } from "drizzle-orm/pg-core";
-import { type AdapterAccount } from "next-auth/adapters";
+import type { AdapterAccount } from "next-auth/adapters";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -63,6 +65,20 @@ export const usersRelations = relations(users, ({ many, one }) => ({
     references: [subscriptions.userId],
   }), //for simplicity one active subscription only | can be many if needed
   payments: many(payments), //many if subscription or have different offerings | one if one-time payment
+  aboutInfo: one(aboutInfo, {
+    fields: [users.id],
+    references: [aboutInfo.userId],
+  }),
+  projects: many(projects),
+  skills: many(skills),
+  resume: one(resume, {
+    fields: [users.id],
+    references: [resume.userId],
+  }),
+  settings: one(settings, {
+    fields: [users.id],
+    references: [settings.userId],
+  }),
 }));
 
 export const accounts = createTable(
@@ -232,3 +248,144 @@ export const failedPaymentsRelations = relations(payments, ({ one }) => ({
 }));
 
 // DATABASE SCHEMA
+
+// New tables for portfolio information
+
+export const aboutInfo = createTable("about_info", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => users.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  bio: text("bio").notNull(),
+  profileImage: varchar("profile_image", { length: 255 }),
+  socials: json("socials").$type<{
+    twitter?: string;
+    github?: string;
+    tiktok?: string;
+    instagram?: string;
+    youtube?: string;
+    linkedin?: string;
+    facebook?: string;
+    email?: string;
+  }>(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date(),
+  ),
+});
+
+export const aboutInfoRelations = relations(aboutInfo, ({ one }) => ({
+  user: one(users, { fields: [aboutInfo.userId], references: [users.id] }),
+}));
+
+export const projects = createTable("projects", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => users.id),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  imageUrl: varchar("image_url", { length: 255 }),
+  technologies: varchar("technologies", { length: 255 }).notNull(),
+  projectUrl: varchar("project_url", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date(),
+  ),
+});
+
+export const projectsRelations = relations(projects, ({ one }) => ({
+  user: one(users, { fields: [projects.userId], references: [users.id] }),
+}));
+
+export const skills = createTable("skills", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => users.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date(),
+  ),
+});
+
+export const skillsRelations = relations(skills, ({ one }) => ({
+  user: one(users, { fields: [skills.userId], references: [users.id] }),
+}));
+
+export const resume = createTable("resume", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => users.id),
+  fullName: varchar("full_name", { length: 255 }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 50 }).notNull(),
+  location: varchar("location", { length: 255 }).notNull(),
+  summary: text("summary").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date(),
+  ),
+});
+
+export const resumeRelations = relations(resume, ({ one, many }) => ({
+  user: one(users, { fields: [resume.userId], references: [users.id] }),
+  experiences: many(experiences),
+}));
+
+export const experiences = createTable("experiences", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  resumeId: integer("resume_id")
+    .notNull()
+    .references(() => resume.id),
+  title: varchar("title", { length: 255 }).notNull(),
+  company: varchar("company", { length: 255 }).notNull(),
+  startDate: varchar("start_date", { length: 50 }).notNull(),
+  endDate: varchar("end_date", { length: 50 }),
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date(),
+  ),
+});
+
+export const experiencesRelations = relations(experiences, ({ one }) => ({
+  resume: one(resume, {
+    fields: [experiences.resumeId],
+    references: [resume.id],
+  }),
+}));
+
+export const settings = createTable("settings", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  userId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => users.id),
+  primaryColor: varchar("primary_color", { length: 7 }).notNull(),
+  darkMode: boolean("dark_mode").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date(),
+  ),
+});
+
+export const settingsRelations = relations(settings, ({ one }) => ({
+  user: one(users, { fields: [settings.userId], references: [users.id] }),
+}));
