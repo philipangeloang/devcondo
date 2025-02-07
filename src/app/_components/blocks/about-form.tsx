@@ -73,6 +73,8 @@ const aboutFormSchema = z.object({
   }),
 });
 
+import { api } from "@/trpc/react";
+
 const AboutForm = () => {
   const form = useForm<z.infer<typeof aboutFormSchema>>({
     resolver: zodResolver(aboutFormSchema),
@@ -94,9 +96,19 @@ const AboutForm = () => {
     },
   });
 
+  // TRPC hooks
+  const utils = api.useUtils();
+  const createAboutInfo = api.aboutInfo.create.useMutation({
+    onSuccess: async () => {
+      await utils.aboutInfo.invalidate();
+      console.log("success");
+    },
+  });
+
+  // Submit handler
   function onSubmit(values: z.infer<typeof aboutFormSchema>) {
     // Here you would typically save the data to your backend
-    console.log(values);
+    createAboutInfo.mutate(values);
   }
   return (
     <Form {...form}>
@@ -108,7 +120,7 @@ const AboutForm = () => {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Your name" {...field} />
+                <Input placeholder="Your website display name" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

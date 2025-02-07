@@ -260,23 +260,6 @@ export async function POST(req: NextRequest) {
             }
             break;
 
-            try {
-              await db
-                .update(subscriptions)
-                .set({
-                  status: (await payload).data.status,
-                })
-                .where(
-                  eq(
-                    subscriptions.subscriptionId,
-                    (await payload).data.subscriptionId,
-                  ),
-                );
-            } catch (error) {
-              console.error(error);
-            }
-            break;
-
           // DEFAULT --------------------------------------------------------
           default:
             console.log("Unhandled event", (await payload).data);
