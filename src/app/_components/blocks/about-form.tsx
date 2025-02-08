@@ -1,4 +1,5 @@
 "use client";
+
 import {
   Form,
   FormControl,
@@ -11,10 +12,17 @@ import {
 import { Button } from "@/app/_components/ui/button";
 import { Input } from "@/app/_components/ui/input";
 import { Textarea } from "@/app/_components/ui/textarea";
+import { toast } from "sonner";
+import { Toaster } from "@/app/_components/ui/sonner";
+import { IconLoader } from "@tabler/icons-react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+
+import { api } from "@/trpc/react";
+import { useState, useEffect } from "react";
+import ProviderSignout from "../auth/providers-signout";
 
 const aboutFormSchema = z.object({
   name: z.string().min(2, {
@@ -73,9 +81,35 @@ const aboutFormSchema = z.object({
   }),
 });
 
-import { api } from "@/trpc/react";
-
 const AboutForm = () => {
+  // States
+  const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // TRPC hooks
+  const { data: aboutInfo, isLoading: isAboutInfoLoading } =
+    api.aboutInfo.aboutInfoGet.useQuery();
+  const utils = api.useUtils();
+  const { mutate: create } = api.aboutInfo.aboutInfoCreate.useMutation({
+    onSuccess: async () => {
+      await utils.aboutInfo.invalidate();
+      setIsEditing(false);
+      toast("Successfully Created", {
+        description: new Date().toLocaleTimeString(),
+      });
+    },
+  });
+  const { mutate: update } = api.aboutInfo.aboutInfoUpdate.useMutation({
+    onSuccess: async () => {
+      await utils.aboutInfo.invalidate();
+      setIsEditing(false);
+      toast("Changes saved", {
+        description: new Date().toLocaleTimeString(),
+      });
+    },
+  });
+
+  // Form Data
   const form = useForm<z.infer<typeof aboutFormSchema>>({
     resolver: zodResolver(aboutFormSchema),
     defaultValues: {
@@ -96,22 +130,42 @@ const AboutForm = () => {
     },
   });
 
-  // TRPC hooks
-  const utils = api.useUtils();
-  const createAboutInfo = api.aboutInfo.create.useMutation({
-    onSuccess: async () => {
-      await utils.aboutInfo.invalidate();
-      console.log("success");
-    },
-  });
-
   // Submit handler
   function onSubmit(values: z.infer<typeof aboutFormSchema>) {
-    // Here you would typically save the data to your backend
-    createAboutInfo.mutate(values);
+    if (!aboutInfo) {
+      create(values);
+    } else update(values);
   }
+
+  // Initial Fetching of data
+  useEffect(() => {
+    if (aboutInfo && !isAboutInfoLoading) {
+      form.reset({
+        ...aboutInfo,
+        profileImage: aboutInfo.profileImage ?? "",
+        socials: {
+          ...aboutInfo.socials,
+          twitter: aboutInfo.socials?.twitter ?? "",
+          github: aboutInfo.socials?.github ?? "",
+          tiktok: aboutInfo.socials?.tiktok ?? "",
+          instagram: aboutInfo.socials?.instagram ?? "",
+          youtube: aboutInfo.socials?.youtube ?? "",
+          linkedin: aboutInfo.socials?.linkedin ?? "",
+          facebook: aboutInfo.socials?.facebook ?? "",
+          email: aboutInfo.socials?.email ?? "",
+        },
+      });
+      setIsLoading(false);
+    }
+  }, [aboutInfo, isAboutInfoLoading, form]);
+
+  if (isLoading) {
+    return <IconLoader className="animate-spin" />;
+  }
+
   return (
     <Form {...form}>
+      <Toaster />
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
@@ -120,7 +174,11 @@ const AboutForm = () => {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Your website display name" {...field} />
+                <Input
+                  disabled={!isEditing}
+                  placeholder="Your website display name"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -133,7 +191,11 @@ const AboutForm = () => {
             <FormItem>
               <FormLabel>Professional Title</FormLabel>
               <FormControl>
-                <Input placeholder="e.g. Full-Stack Developer" {...field} />
+                <Input
+                  disabled={!isEditing}
+                  placeholder="e.g. Full-Stack Developer"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -147,6 +209,7 @@ const AboutForm = () => {
               <FormLabel>Bio</FormLabel>
               <FormControl>
                 <Textarea
+                  disabled={!isEditing}
                   placeholder="Write a short bio about yourself"
                   className="resize-none"
                   {...field}
@@ -167,6 +230,7 @@ const AboutForm = () => {
               <FormLabel>Profile Image URL</FormLabel>
               <FormControl>
                 <Input
+                  disabled={!isEditing}
                   placeholder="https://example.com/your-image.jpg"
                   {...field}
                 />
@@ -195,10 +259,7 @@ const AboutForm = () => {
                 <FormItem>
                   <FormLabel>GitHub</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="https://github.com/username"
-                      {...field}
-                    />
+                    <Input disabled={!isEditing} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -211,10 +272,7 @@ const AboutForm = () => {
                 <FormItem>
                   <FormLabel>LinkedIn</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="https://linkedin.com/in/username"
-                      {...field}
-                    />
+                    <Input disabled={!isEditing} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -227,10 +285,7 @@ const AboutForm = () => {
                 <FormItem>
                   <FormLabel>Twitter</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="https://twitter.com/username"
-                      {...field}
-                    />
+                    <Input disabled={!isEditing} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -243,10 +298,7 @@ const AboutForm = () => {
                 <FormItem>
                   <FormLabel>Instagram</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="https://instagram.com/username"
-                      {...field}
-                    />
+                    <Input disabled={!isEditing} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -259,10 +311,7 @@ const AboutForm = () => {
                 <FormItem>
                   <FormLabel>YouTube</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="https://youtube.com/@username"
-                      {...field}
-                    />
+                    <Input disabled={!isEditing} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -275,10 +324,7 @@ const AboutForm = () => {
                 <FormItem>
                   <FormLabel>TikTok</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="https://tiktok.com/@username"
-                      {...field}
-                    />
+                    <Input disabled={!isEditing} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -291,10 +337,7 @@ const AboutForm = () => {
                 <FormItem>
                   <FormLabel>Facebook</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="https://facebook.com/username"
-                      {...field}
-                    />
+                    <Input disabled={!isEditing} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -307,11 +350,7 @@ const AboutForm = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="you@example.com"
-                      {...field}
-                    />
+                    <Input disabled={!isEditing} type="email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -320,7 +359,25 @@ const AboutForm = () => {
           </div>
         </div>
 
-        <Button type="submit">Save Changes</Button>
+        <div className="flex gap-4">
+          <Button
+            className="text-skin-base dark:bg-skin-fill cursor-pointer bg-white"
+            onClick={() => {
+              setIsEditing(!isEditing);
+            }}
+            type="button"
+          >
+            {isEditing ? "Cancel" : "Edit"}
+          </Button>
+          <Button
+            disabled={!isEditing}
+            className="cursor-pointer dark:bg-white dark:text-black"
+            type="submit"
+          >
+            Save Changes
+          </Button>
+          <ProviderSignout />
+        </div>
       </form>
     </Form>
   );
