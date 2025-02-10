@@ -5,7 +5,7 @@ import { aboutInfo } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 
 export const aboutInfoRouter = createTRPCRouter({
-  aboutInfoCreate: protectedProcedure
+  create: protectedProcedure
     .input(
       z.object({
         name: z.string().min(1),
@@ -31,7 +31,7 @@ export const aboutInfoRouter = createTRPCRouter({
       });
     }),
 
-  aboutInfoGet: protectedProcedure.query(async ({ ctx }) => {
+  get: protectedProcedure.query(async ({ ctx }) => {
     const aboutInfoSingle = await ctx.db.query.aboutInfo.findFirst({
       where: (aboutInfo, { eq }) => eq(aboutInfo.userId, ctx.session.user.id),
     });
@@ -39,7 +39,7 @@ export const aboutInfoRouter = createTRPCRouter({
     return aboutInfoSingle ?? null;
   }),
 
-  aboutInfoUpdate: protectedProcedure
+  update: protectedProcedure
     .input(
       z.object({
         name: z.string().min(1).optional(),

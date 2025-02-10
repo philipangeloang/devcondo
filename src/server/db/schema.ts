@@ -289,9 +289,9 @@ export const projects = createTable("projects", {
     .references(() => users.id),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description").notNull(),
-  imageUrl: varchar("image_url", { length: 255 }),
-  technologies: varchar("technologies", { length: 255 }).notNull(),
-  projectUrl: varchar("project_url", { length: 255 }).notNull(),
+  imageUrl: varchar("image_url", { length: 255 }).notNull(),
+  technologies: text("technologies").array(),
+  projectUrl: varchar("project_url", { length: 255 }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),

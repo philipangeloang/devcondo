@@ -15,7 +15,19 @@ import {
 import { Input } from "@/app/_components/ui/input";
 import { Textarea } from "@/app/_components/ui/textarea";
 import { Card, CardContent } from "@/app/_components/ui/card";
-import { Plus, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/app/_components/ui/dialog";
+import { toast } from "sonner";
+import { Toaster } from "@/app/_components/ui/toaster";
+import { IconPlus, IconTrash } from "@tabler/icons-react";
+
+import { api } from "@/trpc/react";
 
 const projectSchema = z.object({
   title: z.string().min(2, {
@@ -27,162 +39,163 @@ const projectSchema = z.object({
   imageUrl: z.string().url({
     message: "Please enter a valid URL.",
   }),
-  technologies: z.string().min(2, {
-    message: "Please enter at least one technology.",
-  }),
-  projectUrl: z.string().url({
-    message: "Please enter a valid URL.",
-  }),
-});
-
-const projectsFormSchema = z.object({
-  projects: z.array(projectSchema),
+  technologies: z.array(z.string()).optional(),
+  projectUrl: z
+    .string()
+    .url({
+      message: "Please enter a valid URL.",
+    })
+    .optional(),
 });
 
 export function ProjectsForm() {
-  const form = useForm<z.infer<typeof projectsFormSchema>>({
-    resolver: zodResolver(projectsFormSchema),
-    defaultValues: {
-      projects: [
-        {
-          title: "",
-          description: "",
-          imageUrl: "",
-          technologies: "",
-          projectUrl: "",
-        },
-      ],
+  // TRPC Hooks
+  const utils = api.useUtils();
+  const { mutate: create } = api.project.create.useMutation({
+    onSuccess: async () => {
+      await utils.aboutInfo.invalidate();
+      // setIsEditing(false);
+      // setIsSaving(false);
+      toast("Successfully Created", {
+        description: new Date().toLocaleTimeString(),
+      });
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
-    name: "projects",
-    control: form.control,
+  const form = useForm<z.infer<typeof projectSchema>>({
+    resolver: zodResolver(projectSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      imageUrl: "",
+      technologies: [],
+      projectUrl: "",
+    },
   });
 
-  function onSubmit(values: z.infer<typeof projectsFormSchema>) {
+  function onSubmit(values: z.infer<typeof projectSchema>) {
     // Here you would typically save the data to your backend
+    create(values);
     console.log(values);
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="space-y-4">
-          {fields.map((field, index) => (
-            <Card key={field.id}>
-              <CardContent className="pt-6">
-                <div className="grid gap-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-medium">Project {index + 1}</h3>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      onClick={() => remove(index)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name={`projects.${index}.title`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Project Title</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name={`projects.${index}.description`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Describe your project"
-                            className="resize-none"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name={`projects.${index}.imageUrl`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Project Image URL</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name={`projects.${index}.technologies`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Technologies Used</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="React, Node.js, etc."
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <FormField
-                    control={form.control}
-                    name={`projects.${index}.projectUrl`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Project URL</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="mt-2"
-          onClick={() =>
-            append({
-              title: "",
-              description: "",
-              imageUrl: "",
-              technologies: "",
-              projectUrl: "",
-            })
-          }
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Project
-        </Button>
-        <Button type="submit">Save All Projects</Button>
-      </form>
-    </Form>
+    <>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button className="cursor-pointer bg-black text-white dark:bg-white dark:text-black">
+            Add Project
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add Project</DialogTitle>
+            <DialogDescription>
+              Add project here. Click save when you&apos;re done.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...form}>
+            <Toaster />
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Your project title" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Your project description"
+                        className="resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="imageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Image</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Your project image" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="technologies"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Technologies Used</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="React, Node.js, TypeScript"
+                        value={field.value ? field.value.join(", ") : ""}
+                        onChange={(e) => {
+                          // Allow typing, including spaces and commas
+                          const inputValue = e.target.value;
+                          field.onChange(
+                            inputValue.split(",").map((tech) => tech.trim()),
+                          );
+                        }}
+                        onBlur={(e) => {
+                          // Process the input when the field loses focus
+                          const processedValue = e.target.value
+                            .split(",")
+                            .map((tech) => tech.trim())
+                            .filter((tech) => tech !== "");
+                          field.onChange(processedValue);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="projectUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Project URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Your project URL" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="">
+                <Button
+                  type="submit"
+                  className="bg-black text-white dark:bg-white dark:text-black"
+                >
+                  Save Project
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
