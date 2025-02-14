@@ -515,7 +515,7 @@ export function ProjectsForm() {
 
                   {/* Delete Alert Dialog */}
                   <AlertDialog>
-                    <AlertDialogTrigger>
+                    <AlertDialogTrigger asChild>
                       <Button
                         variant="outline"
                         className="cursor-pointer bg-red-500 text-white dark:bg-red-500"
