@@ -45,7 +45,13 @@ export const projectsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       await ctx.db
         .update(projects)
-        .set(input)
+        .set({
+          title: input.title,
+          description: input.description,
+          imageUrl: input.imageUrl,
+          technologies: input.technologies,
+          projectUrl: input.projectUrl,
+        })
         .where(
           and(
             eq(projects.id, input.id),

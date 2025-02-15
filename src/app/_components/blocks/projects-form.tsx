@@ -4,6 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useState } from "react";
+import { toast } from "sonner";
+import { Toaster } from "@/app/_components/ui/sonner";
+import { IconPlus, IconEdit, IconTrash, IconLoader } from "@tabler/icons-react";
+import { api } from "@/trpc/react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/app/_components/ui/button";
 import {
   Form,
@@ -55,15 +60,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/app/_components/ui/alert-dialog";
-
-import { toast } from "sonner";
-import { Toaster } from "@/app/_components/ui/sonner";
-import { IconPlus, IconEdit, IconTrash, IconLoader } from "@tabler/icons-react";
-
-import { api } from "@/trpc/react";
+import { Separator } from "@/app/_components/ui/separator";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Separator } from "../ui/separator";
 
 const frameworks = [
   { value: "next.js", label: "Next.js" },
@@ -92,10 +90,31 @@ const projectSchema = z.object({
     .optional(),
 });
 
+const updateProjectSchema = z.object({
+  id: z.number(),
+  title: z.string().min(2, {
+    message: "Title must be at least 2 characters.",
+  }),
+  description: z.string().min(10, {
+    message: "Description must be at least 10 characters.",
+  }),
+  imageUrl: z.string().url({
+    message: "Please enter a valid URL.",
+  }),
+  technologies: z.array(z.string()).optional(),
+  projectUrl: z
+    .string()
+    .url({
+      message: "Please enter a valid URL.",
+    })
+    .optional(),
+});
+
 export function ProjectsForm() {
   // States
   const [open, setOpen] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false); //for loading state
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
   // TRPC Hooks
@@ -114,7 +133,7 @@ export function ProjectsForm() {
     onSuccess: async () => {
       await utils.project.invalidate();
       setIsCreating(false);
-      setOpen(false);
+      setDialogOpen(false);
       form.reset();
       toast("Successfully Added", {
         description: new Date().toLocaleTimeString(),
@@ -125,8 +144,8 @@ export function ProjectsForm() {
     onSuccess: async () => {
       await utils.project.invalidate();
       setIsCreating(false);
-      setOpen(false);
-      form.reset();
+      setDialogOpen(false);
+      updateForm.reset();
       toast("Successfully Edited", {
         description: new Date().toLocaleTimeString(),
       });
@@ -144,22 +163,35 @@ export function ProjectsForm() {
     },
   });
 
+  const updateForm = useForm<z.infer<typeof updateProjectSchema>>({
+    resolver: zodResolver(updateProjectSchema),
+    defaultValues: {
+      id: 0,
+      title: "",
+      description: "",
+      imageUrl: "",
+      technologies: [],
+      projectUrl: "",
+    },
+  });
+
   function onSubmit(values: z.infer<typeof projectSchema>) {
     try {
       setIsCreating(true);
       values.technologies = selectedValues;
       create(values);
+      setSelectedValues([]);
     } catch (error) {
       console.error(error);
     }
   }
 
-  function onEdit(values: z.infer<typeof projectSchema>) {
+  function onEdit(values: z.infer<typeof updateProjectSchema>) {
     try {
-      // Fix Edithing
-      // setIsCreating(true);
-      // values.technologies = selectedValues;
-      // update(values);
+      setIsCreating(true);
+      values.technologies = selectedValues;
+      update(values);
+      setSelectedValues([]);
     } catch (error) {
       console.error(error);
     }
@@ -167,7 +199,7 @@ export function ProjectsForm() {
 
   return (
     <>
-      <Dialog>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <Toaster />
         <DialogTrigger asChild>
           <Button className="cursor-pointer bg-black text-white dark:bg-white dark:text-black">
@@ -342,10 +374,23 @@ export function ProjectsForm() {
                 </TableCell>
                 <TableCell className="flex gap-2">
                   {/* Edit Dialog */}
-                  <Dialog>
+                  <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                     <Toaster />
                     <DialogTrigger asChild>
-                      <Button className="cursor-pointer bg-black text-white dark:bg-white dark:text-black">
+                      <Button
+                        onClick={() => {
+                          setSelectedValues(project.technologies ?? []);
+                          updateForm.reset({
+                            id: project.id,
+                            title: project.title,
+                            description: project.description,
+                            imageUrl: project.imageUrl,
+                            technologies: project.technologies ?? [],
+                            projectUrl: project.projectUrl ?? "",
+                          }); // Populate form with existing project data
+                        }}
+                        className="cursor-pointer bg-black text-white dark:bg-white dark:text-black"
+                      >
                         <IconEdit />
                       </Button>
                     </DialogTrigger>
@@ -356,13 +401,27 @@ export function ProjectsForm() {
                           Edit project here. Click save when you&apos;re done.
                         </DialogDescription>
                       </DialogHeader>
-                      <Form {...form}>
+                      <Form {...updateForm}>
                         <form
-                          onSubmit={form.handleSubmit(onEdit)}
+                          onSubmit={updateForm.handleSubmit(onEdit)}
                           className="space-y-4"
                         >
+                          {/* Hidden ID for editing purposes */}
                           <FormField
-                            control={form.control}
+                            control={updateForm.control}
+                            name="id"
+                            render={({ field }) => (
+                              <FormItem className="hidden">
+                                <FormLabel>Hidden ID</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Hidden ID" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={updateForm.control}
                             name="title"
                             render={({ field }) => (
                               <FormItem>
@@ -378,7 +437,7 @@ export function ProjectsForm() {
                             )}
                           />
                           <FormField
-                            control={form.control}
+                            control={updateForm.control}
                             name="description"
                             render={({ field }) => (
                               <FormItem>
@@ -395,7 +454,7 @@ export function ProjectsForm() {
                             )}
                           />
                           <FormField
-                            control={form.control}
+                            control={updateForm.control}
                             name="imageUrl"
                             render={({ field }) => (
                               <FormItem>
@@ -411,7 +470,7 @@ export function ProjectsForm() {
                             )}
                           />
                           <FormField
-                            control={form.control}
+                            control={updateForm.control}
                             name="technologies"
                             render={({ field }) => (
                               <>
@@ -484,7 +543,7 @@ export function ProjectsForm() {
                             )}
                           />
                           <FormField
-                            control={form.control}
+                            control={updateForm.control}
                             name="projectUrl"
                             render={({ field }) => (
                               <FormItem>
