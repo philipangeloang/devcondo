@@ -310,6 +310,7 @@ export const skills = createTable("skills", {
     .notNull()
     .references(() => users.id),
   name: varchar("name", { length: 255 }).notNull(),
+  isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),

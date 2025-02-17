@@ -116,12 +116,14 @@ export function ProjectsForm() {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState<number | null>(null); // Store the ID of the project being edited
   const [isCreating, setIsCreating] = useState(false); //for loading state
-  const [selectedValues, setSelectedValues] = useState<string[]>([]);
+  const [selectedValues, setSelectedValues] = useState<(string | number)[]>([]);
 
   // TRPC Hooks
   const utils = api.useUtils();
   const { data: allProjects, isLoading: allProjectsLoading } =
     api.project.get.useQuery();
+  const { data: allSkills } = api.skill.get.useQuery();
+
   const { mutate: create } = api.project.create.useMutation({
     onSuccess: async () => {
       await utils.project.invalidate();
@@ -179,7 +181,9 @@ export function ProjectsForm() {
   function onSubmit(values: z.infer<typeof projectSchema>) {
     try {
       setIsCreating(true);
-      values.technologies = selectedValues;
+      values.technologies = selectedValues.filter(
+        (value): value is string => typeof value === "string",
+      );
       create(values);
       setSelectedValues([]);
     } catch (error) {
@@ -190,13 +194,17 @@ export function ProjectsForm() {
   function onEdit(values: z.infer<typeof updateProjectSchema>) {
     try {
       setIsCreating(true);
-      values.technologies = selectedValues;
+      values.technologies = selectedValues.filter(
+        (value): value is string => typeof value === "string",
+      );
       update(values);
       setSelectedValues([]);
     } catch (error) {
       console.error(error);
     }
   }
+
+  console.log("HERE", selectedValues);
 
   return (
     <>
@@ -268,7 +276,7 @@ export function ProjectsForm() {
               <FormField
                 control={form.control}
                 name="technologies"
-                render={({ field }) => (
+                render={() => (
                   <>
                     <FormLabel>
                       Technologies Used <br />
@@ -293,29 +301,28 @@ export function ProjectsForm() {
                             <CommandList>
                               <CommandEmpty>No framework found.</CommandEmpty>
                               <CommandGroup>
-                                {frameworks.map((framework) => (
+                                {allSkills?.map((framework) => (
                                   <CommandItem
-                                    key={framework.value}
+                                    key={framework.id}
                                     onSelect={() => {
                                       setSelectedValues((prev) =>
-                                        prev.includes(framework.value)
+                                        prev.includes(framework.id)
                                           ? prev.filter(
-                                              (value) =>
-                                                value !== framework.value,
+                                              (id) => id !== framework.id,
                                             )
-                                          : [...prev, framework.value],
+                                          : [...prev, framework.id],
                                       );
                                     }}
                                   >
                                     <IconCheck
                                       className={cn(
                                         "mr-2 h-4 w-4",
-                                        selectedValues.includes(framework.value)
+                                        selectedValues.includes(framework.id)
                                           ? "opacity-100"
                                           : "opacity-0",
                                       )}
                                     />
-                                    {framework.label}
+                                    {framework.name}
                                   </CommandItem>
                                 ))}
                               </CommandGroup>
@@ -358,6 +365,7 @@ export function ProjectsForm() {
         <IconLoader size={24} className="animate-spin" />
       ) : (
         <>
+          {/* Bigger Screen Size Table */}
           <Table className="hidden md:table">
             <TableHeader>
               <TableRow>
@@ -483,7 +491,7 @@ export function ProjectsForm() {
                             <FormField
                               control={updateForm.control}
                               name="technologies"
-                              render={({ field }) => (
+                              render={() => (
                                 <>
                                   <FormLabel>
                                     Technologies Used <br />
@@ -510,22 +518,22 @@ export function ProjectsForm() {
                                               No framework found.
                                             </CommandEmpty>
                                             <CommandGroup>
-                                              {frameworks.map((framework) => (
+                                              {allSkills?.map((framework) => (
                                                 <CommandItem
-                                                  key={framework.value}
+                                                  key={framework.id}
                                                   onSelect={() => {
                                                     setSelectedValues((prev) =>
                                                       prev.includes(
-                                                        framework.value,
+                                                        framework.id,
                                                       )
                                                         ? prev.filter(
-                                                            (value) =>
-                                                              value !==
-                                                              framework.value,
+                                                            (id) =>
+                                                              id !==
+                                                              framework.id,
                                                           )
                                                         : [
                                                             ...prev,
-                                                            framework.value,
+                                                            framework.id,
                                                           ],
                                                     );
                                                   }}
@@ -534,13 +542,13 @@ export function ProjectsForm() {
                                                     className={cn(
                                                       "mr-2 h-4 w-4",
                                                       selectedValues.includes(
-                                                        framework.value,
+                                                        framework.id,
                                                       )
                                                         ? "opacity-100"
                                                         : "opacity-0",
                                                     )}
                                                   />
-                                                  {framework.label}
+                                                  {framework.name}
                                                 </CommandItem>
                                               ))}
                                             </CommandGroup>
@@ -618,6 +626,8 @@ export function ProjectsForm() {
               ))}
             </TableBody>
           </Table>
+
+          {/* Lower Screen Size Cards */}
           <div className="grid grid-cols-12 gap-4 md:hidden">
             {allProjects?.map((project) => (
               <div
@@ -740,7 +750,7 @@ export function ProjectsForm() {
                           <FormField
                             control={updateForm.control}
                             name="technologies"
-                            render={({ field }) => (
+                            render={() => (
                               <>
                                 <FormLabel>
                                   Technologies Used <br />
@@ -767,23 +777,17 @@ export function ProjectsForm() {
                                             No framework found.
                                           </CommandEmpty>
                                           <CommandGroup>
-                                            {frameworks.map((framework) => (
+                                            {allSkills?.map((framework) => (
                                               <CommandItem
-                                                key={framework.value}
+                                                key={framework.id}
                                                 onSelect={() => {
                                                   setSelectedValues((prev) =>
-                                                    prev.includes(
-                                                      framework.value,
-                                                    )
+                                                    prev.includes(framework.id)
                                                       ? prev.filter(
-                                                          (value) =>
-                                                            value !==
-                                                            framework.value,
+                                                          (id) =>
+                                                            id !== framework.id,
                                                         )
-                                                      : [
-                                                          ...prev,
-                                                          framework.value,
-                                                        ],
+                                                      : [...prev, framework.id],
                                                   );
                                                 }}
                                               >
@@ -791,13 +795,13 @@ export function ProjectsForm() {
                                                   className={cn(
                                                     "mr-2 h-4 w-4",
                                                     selectedValues.includes(
-                                                      framework.value,
+                                                      framework.id,
                                                     )
                                                       ? "opacity-100"
                                                       : "opacity-0",
                                                   )}
                                                 />
-                                                {framework.label}
+                                                {framework.name}
                                               </CommandItem>
                                             ))}
                                           </CommandGroup>

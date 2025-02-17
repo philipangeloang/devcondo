@@ -2,13 +2,14 @@ import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { skills } from "@/server/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 export const skillsRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
         name: z.string().min(1),
+        isActive: z.boolean().default(true),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -31,6 +32,7 @@ export const skillsRouter = createTRPCRouter({
       z.object({
         id: z.number(),
         name: z.string().min(1),
+        isActive: z.boolean().default(true),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -38,7 +40,20 @@ export const skillsRouter = createTRPCRouter({
         .update(skills)
         .set({
           name: input.name,
+          isActive: input.isActive,
         })
-        .where(eq(skills.userId, ctx.session.user.id));
+        .where(
+          and(eq(skills.id, input.id), eq(skills.userId, ctx.session.user.id)),
+        );
+    }),
+
+  delete: protectedProcedure
+    .input(z.number())
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db
+        .delete(skills)
+        .where(
+          and(eq(skills.id, input), eq(skills.userId, ctx.session.user.id)),
+        );
     }),
 });
