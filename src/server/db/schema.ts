@@ -290,7 +290,6 @@ export const projects = createTable("projects", {
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description").notNull(),
   imageUrl: varchar("image_url", { length: 255 }).notNull(),
-  technologies: text("technologies").array(),
   projectUrl: varchar("project_url", { length: 255 }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
@@ -300,8 +299,9 @@ export const projects = createTable("projects", {
   ),
 });
 
-export const projectsRelations = relations(projects, ({ one }) => ({
+export const projectsRelations = relations(projects, ({ one, many }) => ({
   user: one(users, { fields: [projects.userId], references: [users.id] }),
+  skills: many(projectSkills),
 }));
 
 export const skills = createTable("skills", {
@@ -319,8 +319,35 @@ export const skills = createTable("skills", {
   ),
 });
 
-export const skillsRelations = relations(skills, ({ one }) => ({
+export const skillsRelations = relations(skills, ({ one, many }) => ({
   user: one(users, { fields: [skills.userId], references: [users.id] }),
+  projects: many(projectSkills),
+}));
+
+export const projectSkills = createTable(
+  "project_skills",
+  {
+    projectId: integer("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    skillId: integer("skill_id")
+      .notNull()
+      .references(() => skills.id, { onDelete: "cascade" }),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.projectId, table.skillId] }), // Composite primary key
+  }),
+);
+
+export const projectSkillsRelations = relations(projectSkills, ({ one }) => ({
+  project: one(projects, {
+    fields: [projectSkills.projectId],
+    references: [projects.id],
+  }),
+  skill: one(skills, {
+    fields: [projectSkills.skillId],
+    references: [skills.id],
+  }),
 }));
 
 export const resume = createTable("resume", {

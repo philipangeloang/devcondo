@@ -91,23 +91,34 @@ const AboutForm = () => {
   const { data: aboutInfo, isLoading: isAboutInfoLoading } =
     api.aboutInfo.get.useQuery();
   const { mutate: create } = api.aboutInfo.create.useMutation({
-    onSuccess: async () => {
+    onSuccess: async ({ message }) => {
       await utils.aboutInfo.invalidate();
       setIsEditing(false);
       setIsSaving(false);
-      toast("Successfully Created", {
+      toast(message, {
         description: new Date().toLocaleTimeString(),
+      });
+    },
+    onError: async (error) => {
+      setIsSaving(false);
+      toast("Error", {
+        description: error.message,
       });
     },
   });
   const { mutate: update } = api.aboutInfo.update.useMutation({
-    onSuccess: async () => {
+    onSuccess: async ({ message }) => {
       await utils.aboutInfo.invalidate();
       setIsEditing(false);
       setIsSaving(false);
-
-      toast("Changes saved", {
+      toast(message, {
         description: new Date().toLocaleTimeString(),
+      });
+    },
+    onError: async (error) => {
+      setIsSaving(false);
+      toast("Error", {
+        description: error.message,
       });
     },
   });
