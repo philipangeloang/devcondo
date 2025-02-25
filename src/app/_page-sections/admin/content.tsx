@@ -23,11 +23,21 @@ const Content = () => {
     <ScrollArea className="col-span-12 sm:h-[calc(100vh-204px)]">
       <Tabs defaultValue="about" className="space-y-4">
         <TabsList className="bg-skin-fill grid w-full grid-cols-5">
-          <TabsTrigger value="about">About</TabsTrigger>
-          <TabsTrigger value="projects">Projects</TabsTrigger>
-          <TabsTrigger value="skills">Skills</TabsTrigger>
-          <TabsTrigger value="resume">Resume</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="about">
+            About
+          </TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="projects">
+            Projects
+          </TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="skills">
+            Skills
+          </TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="resume">
+            Resume
+          </TabsTrigger>
+          <TabsTrigger className="cursor-pointer" value="settings">
+            Settings
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="about">
           <Card>

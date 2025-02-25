@@ -121,10 +121,16 @@ export function ProjectsForm() {
   const utils = api.useUtils();
 
   const { data: allSkills } = api.skill.get.useQuery();
-  const { data: projectRelativeSkill, isLoading: projectRelativeSkillLoading } =
-    api.projectSkills.getUpdateFormSkill.useQuery(editId);
-  const { data: allProjectWithSkills, isLoading: allProjectWithSkillsLoading } =
-    api.project.getProjectsWithSkills.useQuery();
+  const {
+    data: projectRelativeSkill,
+    isLoading: isLoadingProjectRelativeSkills,
+    isFetching: isFetchingProjectRelativeSkills,
+  } = api.projectSkills.getUpdateFormSkill.useQuery(editId);
+  const {
+    data: allProjectWithSkills,
+    isLoading: isLoadingProjectWithSkills,
+    isFetching: isFetchingProjectwithSkills,
+  } = api.project.getProjectsWithSkills.useQuery();
 
   const { mutate: create } = api.project.create.useMutation({
     onSuccess: async ({ message }) => {
@@ -146,7 +152,11 @@ export function ProjectsForm() {
   });
   const { mutate: update } = api.project.update.useMutation({
     onSuccess: async ({ message }) => {
-      await Promise.all([utils.project.invalidate(), utils.skill.invalidate()]);
+      await Promise.all([
+        utils.project.invalidate(),
+        utils.skill.invalidate(),
+        utils.projectSkills.invalidate(),
+      ]);
       setIsCreating(false);
       setEditDialogOpen(null);
       updateForm.reset();
@@ -388,7 +398,7 @@ export function ProjectsForm() {
         </DialogContent>
       </Dialog>
       <Separator className="my-5" />
-      {allProjectWithSkillsLoading ? (
+      {isLoadingProjectWithSkills || isFetchingProjectwithSkills ? (
         <IconLoader size={24} className="animate-spin" />
       ) : (
         <>
@@ -435,7 +445,8 @@ export function ProjectsForm() {
                             Edit project here. Click save when you&apos;re done.
                           </DialogDescription>
                         </DialogHeader>
-                        {projectRelativeSkillLoading ? (
+                        {isLoadingProjectRelativeSkills ||
+                        isFetchingProjectRelativeSkills ? (
                           <IconLoader size={24} className="animate-spin" />
                         ) : (
                           <Form {...updateForm}>
@@ -686,7 +697,7 @@ export function ProjectsForm() {
                           Edit project here. Click save when you&apos;re done.
                         </DialogDescription>
                       </DialogHeader>
-                      {projectRelativeSkillLoading ? (
+                      {isLoadingProjectRelativeSkills ? (
                         <IconLoader size={24} className="animate-spin" />
                       ) : (
                         <Form {...updateForm}>

@@ -90,7 +90,11 @@ export function SkillsForm() {
   });
   const { mutate: deleteSkill } = api.skill.delete.useMutation({
     onSuccess: async () => {
-      await Promise.all([utils.project.invalidate(), utils.skill.invalidate()]);
+      await Promise.all([
+        utils.project.invalidate(),
+        utils.skill.invalidate(),
+        utils.projectSkills.invalidate(),
+      ]);
       toast("Successfully Deleted", {
         description: new Date().toLocaleTimeString(),
       });
