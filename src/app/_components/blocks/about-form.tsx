@@ -148,8 +148,13 @@ const AboutForm = () => {
   function onSubmit(values: z.infer<typeof aboutFormSchema>) {
     try {
       if (!aboutInfo) {
+        setIsSaving(true);
+
         create(values);
-      } else update(values);
+      } else {
+        setIsSaving(true);
+        update(values);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -388,7 +393,6 @@ const AboutForm = () => {
               </Button>
               <Button
                 disabled={!isEditing}
-                onClick={() => setIsSaving(true)}
                 className="cursor-pointer dark:bg-white dark:text-black"
                 type="submit"
               >

@@ -3,6 +3,7 @@ import { aboutInfoRouter } from "./routers/about-info";
 import { projectsRouter } from "./routers/projects";
 import { skillsRouter } from "./routers/skills";
 import { projectSkillsRouter } from "./routers/project-skills";
+import { resumeRouter } from "./routers/resume";
 
 /**
  * This is the primary router for your server.
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
   project: projectsRouter,
   skill: skillsRouter,
   projectSkills: projectSkillsRouter,
+  resume: resumeRouter,
 });
 
 // export type definition of API
