@@ -14,7 +14,6 @@ import {
   FormMessage,
 } from "@/app/_components/ui/form";
 import { Input } from "@/app/_components/ui/input";
-import { Textarea } from "@/app/_components/ui/textarea";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/app/_components/ui/card";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
@@ -52,28 +51,27 @@ function formatDateToYear(dateString: string | undefined | null): string {
   }
 }
 
-const experienceSchema = z.object({
-  title: z.string().min(2, "Title must be at least 2 characters"),
-  company: z.string().min(2, "Company must be at least 2 characters"),
+const educationSchema = z.object({
+  degree: z.string().min(2, "Degree must be at least 2 characters"),
+  university: z.string().min(2, "University must be at least 2 characters"),
   startDate: z.string().min(2, "Start date is required"),
   endDate: z.string().optional(),
-  description: z.string().min(10, "Description must be at least 10 characters"),
 });
 
-type ExperienceFormProps = {
+type EducationFormProps = {
   resumeId: number;
-  addExperienceDialogOpen: boolean;
-  setAddExperienceDialogOpen: (open: boolean) => void;
+  addEducationDialogOpen: boolean;
+  setAddEducationDialogOpen: (open: boolean) => void;
 };
 
-export function ExperiencesForm({
+export function EducationForm({
   resumeId,
-  addExperienceDialogOpen,
-  setAddExperienceDialogOpen,
-}: ExperienceFormProps) {
+  addEducationDialogOpen,
+  setAddEducationDialogOpen,
+}: EducationFormProps) {
   // States
   const [isSaving, setIsSaving] = useState(false);
-  const [editExperienceDialogOpen, setEditExperienceDialogOpen] = useState<
+  const [editEducationDialogOpen, setEditEducationDialogOpen] = useState<
     number | null
   >(null);
   const [editId, setEditId] = useState<number>(0);
@@ -81,40 +79,38 @@ export function ExperiencesForm({
   // TRPC Hooks
   const utils = api.useUtils();
   const {
-    data: experiences,
-    isLoading: isExperiencesLoading,
-    isFetching: isExperiencesFetching,
-  } = api.experiences.getByResumeId.useQuery(resumeId, { enabled: !!resumeId });
+    data: educations,
+    isLoading: isEducationsLoading,
+    isFetching: isEducationsFetching,
+  } = api.education.getByResumeId.useQuery(resumeId, { enabled: !!resumeId });
 
   // Form hooks
-  const experienceForm = useForm<z.infer<typeof experienceSchema>>({
-    resolver: zodResolver(experienceSchema),
+  const educationForm = useForm<z.infer<typeof educationSchema>>({
+    resolver: zodResolver(educationSchema),
     defaultValues: {
-      title: "",
-      company: "",
+      degree: "",
+      university: "",
       startDate: "",
       endDate: "",
-      description: "",
     },
   });
 
-  const updateExperienceForm = useForm<z.infer<typeof experienceSchema>>({
-    resolver: zodResolver(experienceSchema),
+  const updateEducationForm = useForm<z.infer<typeof educationSchema>>({
+    resolver: zodResolver(educationSchema),
     defaultValues: {
-      title: "",
-      company: "",
+      degree: "",
+      university: "",
       startDate: "",
       endDate: "",
-      description: "",
     },
   });
 
   // Mutations
-  const { mutate: create } = api.experiences.create.useMutation({
+  const { mutate: create } = api.education.create.useMutation({
     onSuccess: async ({ message }) => {
-      await utils.experiences.invalidate();
-      setAddExperienceDialogOpen(false);
-      experienceForm.reset();
+      await utils.education.invalidate();
+      setAddEducationDialogOpen(false);
+      educationForm.reset();
       setIsSaving(false);
       toast(message, {
         description: new Date().toLocaleTimeString(),
@@ -128,11 +124,11 @@ export function ExperiencesForm({
     },
   });
 
-  const { mutate: update } = api.experiences.update.useMutation({
+  const { mutate: update } = api.education.update.useMutation({
     onSuccess: async ({ message }) => {
-      await utils.experiences.invalidate();
-      setEditExperienceDialogOpen(null);
-      updateExperienceForm.reset();
+      await utils.education.invalidate();
+      setEditEducationDialogOpen(null);
+      updateEducationForm.reset();
       setIsSaving(false);
       toast(message, {
         description: new Date().toLocaleTimeString(),
@@ -146,9 +142,9 @@ export function ExperiencesForm({
     },
   });
 
-  const { mutate: deleteExperience } = api.experiences.delete.useMutation({
+  const { mutate: deleteEducation } = api.education.delete.useMutation({
     onSuccess: async () => {
-      await utils.experiences.invalidate();
+      await utils.education.invalidate();
       toast("Successfully Deleted", {
         description: new Date().toLocaleTimeString(),
       });
@@ -161,7 +157,7 @@ export function ExperiencesForm({
   });
 
   // Form handlers
-  function onSubmit(values: z.infer<typeof experienceSchema>) {
+  function onSubmit(values: z.infer<typeof educationSchema>) {
     try {
       setIsSaving(true);
       create({ ...values, resumeId });
@@ -170,7 +166,7 @@ export function ExperiencesForm({
     }
   }
 
-  function onUpdate(values: z.infer<typeof experienceSchema>) {
+  function onUpdate(values: z.infer<typeof educationSchema>) {
     try {
       setIsSaving(true);
       update({ ...values, id: editId });
@@ -182,66 +178,71 @@ export function ExperiencesForm({
   // Reset form handlers
   useEffect(() => {
     if (editId !== null) {
-      const experience = experiences?.find((p) => p.id === editId);
-      if (experience) {
+      const education = educations?.find((p) => p.id === editId);
+      if (education) {
         const formData = {
-          title: experience.title,
-          company: experience.company,
-          startDate: experience.startDate,
-          description: experience.description,
+          degree: education.degree,
+          university: education.university,
+          startDate: education.startDate,
         };
 
-        if (experience.endDate) {
-          updateExperienceForm.reset({
+        if (education.endDate) {
+          updateEducationForm.reset({
             ...formData,
-            endDate: experience.endDate,
+            endDate: education.endDate,
           });
         } else {
-          updateExperienceForm.reset(formData);
+          updateEducationForm.reset(formData);
         }
       }
     }
-  }, [editId, experiences, updateExperienceForm]);
+  }, [editId, educations, updateEducationForm]);
 
   return (
     <div className="space-y-4">
       <Dialog
-        open={addExperienceDialogOpen}
-        onOpenChange={setAddExperienceDialogOpen}
+        open={addEducationDialogOpen}
+        onOpenChange={setAddEducationDialogOpen}
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Experience</DialogTitle>
+            <DialogTitle>Add Education</DialogTitle>
             <DialogDescription>
-              Add your work experience here. Click save when you&apos;re done.
+              Add your education here. Click save when you&apos;re done.
             </DialogDescription>
           </DialogHeader>
-          <Form {...experienceForm}>
+          <Form {...educationForm}>
             <form
-              onSubmit={experienceForm.handleSubmit(onSubmit)}
+              onSubmit={educationForm.handleSubmit(onSubmit)}
               className="space-y-4"
             >
               <FormField
-                control={experienceForm.control}
-                name="title"
+                control={educationForm.control}
+                name="degree"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Job Title</FormLabel>
+                    <FormLabel>Degree</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. Software Engineer" {...field} />
+                      <Input
+                        placeholder="e.g. Bachelor of Science in Computer Science"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                control={experienceForm.control}
-                name="company"
+                control={educationForm.control}
+                name="university"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Company</FormLabel>
+                    <FormLabel>University</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. Google" {...field} />
+                      <Input
+                        placeholder="e.g. Stanford University"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -249,7 +250,7 @@ export function ExperiencesForm({
               />
               <div className="grid grid-cols-2 gap-4">
                 <FormField
-                  control={experienceForm.control}
+                  control={educationForm.control}
                   name="startDate"
                   render={({ field }) => (
                     <FormItem>
@@ -262,7 +263,7 @@ export function ExperiencesForm({
                   )}
                 />
                 <FormField
-                  control={experienceForm.control}
+                  control={educationForm.control}
                   name="endDate"
                   render={({ field }) => (
                     <FormItem>
@@ -275,68 +276,41 @@ export function ExperiencesForm({
                   )}
                 />
               </div>
-              <FormField
-                control={experienceForm.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Enter bullet points separated by semicolons (;)&#10;Example:&#10;Led a team of 5 developers;Increased performance by 50%;Implemented new features"
-                        className="min-h-[150px] resize-none"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                    <p className="text-muted-foreground text-xs">
-                      Separate each bullet point with a semicolon (;)
-                    </p>
-                  </FormItem>
-                )}
-              />
               <Button type="submit" disabled={isSaving}>
-                {isSaving ? "Saving..." : "Save Experience"}
+                {isSaving ? "Saving..." : "Save Education"}
               </Button>
             </form>
           </Form>
         </DialogContent>
       </Dialog>
 
-      {/* Experience List */}
-      {isExperiencesLoading || isExperiencesFetching ? (
+      {/* Education List */}
+      {isEducationsLoading || isEducationsFetching ? (
         <Loader />
-      ) : experiences?.length === 0 ? (
+      ) : educations?.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8 text-center">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            No experiences added yet.
+            No education added yet.
           </p>
         </div>
       ) : (
-        experiences?.map((experience) => (
-          <Card key={experience.id}>
+        educations?.map((education) => (
+          <Card key={education.id}>
             <CardContent className="flex items-start justify-between p-6">
               <div className="space-y-2">
-                <h3 className="font-semibold">{experience.title}</h3>
-                <p className="text-sm text-zinc-500">{experience.company}</p>
+                <h3 className="font-semibold">{education.degree}</h3>
+                <p className="text-sm text-zinc-500">{education.university}</p>
                 <p className="text-sm text-zinc-500">
-                  {formatDateToYear(experience.startDate)} -{" "}
-                  {formatDateToYear(experience.endDate)}
+                  {formatDateToYear(education.startDate)} -{" "}
+                  {formatDateToYear(education.endDate)}
                 </p>
-                <ul className="list-disc space-y-1 pl-4">
-                  {experience.description.split(";").map((bullet, index) => (
-                    <li key={index} className="text-sm">
-                      {bullet.trim()}
-                    </li>
-                  ))}
-                </ul>
               </div>
               <div className="flex space-x-2">
                 <Dialog
-                  open={editExperienceDialogOpen === experience.id}
+                  open={editEducationDialogOpen === education.id}
                   onOpenChange={(open) => {
-                    setEditExperienceDialogOpen(open ? experience.id : null);
-                    setEditId(experience.id);
+                    setEditEducationDialogOpen(open ? education.id : null);
+                    setEditId(education.id);
                   }}
                 >
                   <DialogTrigger asChild>
@@ -349,26 +323,26 @@ export function ExperiencesForm({
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Edit Experience</DialogTitle>
+                      <DialogTitle>Edit Education</DialogTitle>
                       <DialogDescription>
-                        Edit your work experience here. Click save when
-                        you&apos;re done.
+                        Edit your education here. Click save when you&apos;re
+                        done.
                       </DialogDescription>
                     </DialogHeader>
-                    <Form {...updateExperienceForm}>
+                    <Form {...updateEducationForm}>
                       <form
-                        onSubmit={updateExperienceForm.handleSubmit(onUpdate)}
+                        onSubmit={updateEducationForm.handleSubmit(onUpdate)}
                         className="space-y-4"
                       >
                         <FormField
-                          control={updateExperienceForm.control}
-                          name="title"
+                          control={updateEducationForm.control}
+                          name="degree"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Job Title</FormLabel>
+                              <FormLabel>Degree</FormLabel>
                               <FormControl>
                                 <Input
-                                  placeholder="e.g. Software Engineer"
+                                  placeholder="e.g. Bachelor of Science in Computer Science"
                                   {...field}
                                 />
                               </FormControl>
@@ -377,13 +351,16 @@ export function ExperiencesForm({
                           )}
                         />
                         <FormField
-                          control={updateExperienceForm.control}
-                          name="company"
+                          control={updateEducationForm.control}
+                          name="university"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Company</FormLabel>
+                              <FormLabel>University</FormLabel>
                               <FormControl>
-                                <Input placeholder="e.g. Google" {...field} />
+                                <Input
+                                  placeholder="e.g. Stanford University"
+                                  {...field}
+                                />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -391,7 +368,7 @@ export function ExperiencesForm({
                         />
                         <div className="grid grid-cols-2 gap-4">
                           <FormField
-                            control={updateExperienceForm.control}
+                            control={updateEducationForm.control}
                             name="startDate"
                             render={({ field }) => (
                               <FormItem>
@@ -404,7 +381,7 @@ export function ExperiencesForm({
                             )}
                           />
                           <FormField
-                            control={updateExperienceForm.control}
+                            control={updateEducationForm.control}
                             name="endDate"
                             render={({ field }) => (
                               <FormItem>
@@ -417,26 +394,6 @@ export function ExperiencesForm({
                             )}
                           />
                         </div>
-                        <FormField
-                          control={updateExperienceForm.control}
-                          name="description"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Description</FormLabel>
-                              <FormControl>
-                                <Textarea
-                                  placeholder="Enter bullet points separated by semicolons (;)&#10;Example:&#10;Led a team of 5 developers;Increased performance by 50%;Implemented new features"
-                                  className="min-h-[150px] resize-none"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                              <p className="text-muted-foreground text-xs">
-                                Separate each bullet point with a semicolon (;)
-                              </p>
-                            </FormItem>
-                          )}
-                        />
                         <Button type="submit" disabled={isSaving}>
                           {isSaving ? "Saving..." : "Save Changes"}
                         </Button>
@@ -456,16 +413,16 @@ export function ExperiencesForm({
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Experience</AlertDialogTitle>
+                      <AlertDialogTitle>Delete Education</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Are you sure you want to delete this experience? This
+                        Are you sure you want to delete this education? This
                         action cannot be undone.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
-                        onClick={() => deleteExperience(experience.id)}
+                        onClick={() => deleteEducation(education.id)}
                         className="bg-red-500 hover:bg-red-600"
                       >
                         Delete

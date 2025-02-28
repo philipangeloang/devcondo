@@ -369,9 +369,43 @@ export const resume = createTable("resume", {
   ),
 });
 
+export const education = createTable("education", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  resumeId: integer("resume_id")
+    .notNull()
+    .references(() => resume.id, { onDelete: "cascade" }),
+  degree: varchar("degree", { length: 255 }).notNull(),
+  university: varchar("university", { length: 255 }).notNull(),
+  startDate: varchar("start_date", { length: 255 }).notNull(),
+  endDate: varchar("end_date", { length: 255 }),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date(),
+  ),
+});
+
+export const certifications = createTable("certifications", {
+  id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+  resumeId: integer("resume_id")
+    .notNull()
+    .references(() => resume.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 255 }).notNull(),
+  yearAwarded: varchar("year_awarded", { length: 4 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date(),
+  ),
+});
+
 export const resumeRelations = relations(resume, ({ one, many }) => ({
   user: one(users, { fields: [resume.userId], references: [users.id] }),
   experiences: many(experiences),
+  education: many(education),
+  certifications: many(certifications),
 }));
 
 export const experiences = createTable("experiences", {
@@ -416,4 +450,18 @@ export const settings = createTable("settings", {
 
 export const settingsRelations = relations(settings, ({ one }) => ({
   user: one(users, { fields: [settings.userId], references: [users.id] }),
+}));
+
+export const educationRelations = relations(education, ({ one }) => ({
+  resume: one(resume, {
+    fields: [education.resumeId],
+    references: [resume.id],
+  }),
+}));
+
+export const certificationsRelations = relations(certifications, ({ one }) => ({
+  resume: one(resume, {
+    fields: [certifications.resumeId],
+    references: [resume.id],
+  }),
 }));

@@ -28,6 +28,8 @@ import {
   TabsTrigger,
 } from "@/app/_components/ui/tabs";
 import { ExperiencesForm } from "./experiences-form";
+import { EducationForm } from "./education-form";
+import { CertificationsForm } from "./certifications-form";
 import Loader from "@/app/_components/blocks/loader";
 
 const resumeFormSchema = z.object({
@@ -44,6 +46,9 @@ export function ResumeForm() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isExperienceDialogOpen, setIsExperienceDialogOpen] = useState(false);
+  const [isEducationDialogOpen, setIsEducationDialogOpen] = useState(false);
+  const [isCertificationDialogOpen, setIsCertificationDialogOpen] =
+    useState(false);
 
   // TRPC Hooks
   const utils = api.useUtils();
@@ -394,11 +399,18 @@ export function ResumeForm() {
                       Add your educational background
                     </p>
                   </div>
-                  <Button className="bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200">
+                  <Button
+                    onClick={() => setIsEducationDialogOpen(true)}
+                    className="cursor-pointer dark:bg-white dark:text-black"
+                  >
                     <IconPlus className="mr-2 h-4 w-4" /> Add Education
                   </Button>
                 </div>
-                {/* Education list will go here */}
+                <EducationForm
+                  resumeId={resumeInfo?.id || 0}
+                  addEducationDialogOpen={isEducationDialogOpen}
+                  setAddEducationDialogOpen={setIsEducationDialogOpen}
+                />
               </div>
             </TabsContent>
 
@@ -417,11 +429,18 @@ export function ResumeForm() {
                       Add your certifications and licenses
                     </p>
                   </div>
-                  <Button className="bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200">
+                  <Button
+                    onClick={() => setIsCertificationDialogOpen(true)}
+                    className="cursor-pointer dark:bg-white dark:text-black"
+                  >
                     <IconPlus className="mr-2 h-4 w-4" /> Add Certification
                   </Button>
                 </div>
-                {/* Certifications list will go here */}
+                <CertificationsForm
+                  resumeId={resumeInfo?.id || 0}
+                  addCertificationDialogOpen={isCertificationDialogOpen}
+                  setAddCertificationDialogOpen={setIsCertificationDialogOpen}
+                />
               </div>
             </TabsContent>
           </div>
