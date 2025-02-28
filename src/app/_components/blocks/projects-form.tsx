@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { IconPlus, IconEdit, IconTrash, IconLoader } from "@tabler/icons-react";
+import { IconEdit, IconTrash, IconLoader } from "@tabler/icons-react";
 import { api } from "@/trpc/react";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/app/_components/ui/sonner";

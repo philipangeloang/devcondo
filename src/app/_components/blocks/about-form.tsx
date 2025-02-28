@@ -14,7 +14,6 @@ import { Input } from "@/app/_components/ui/input";
 import { Textarea } from "@/app/_components/ui/textarea";
 import { toast } from "sonner";
 import { Toaster } from "@/app/_components/ui/sonner";
-import { IconLoader } from "@tabler/icons-react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -28,9 +27,6 @@ import ProviderSignout from "../auth/providers-signout";
 const aboutFormSchema = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters.",
-  }),
-  title: z.string().min(2, {
-    message: "Title must be at least 2 characters.",
   }),
   bio: z.string().min(10, {
     message: "Bio must be at least 10 characters.",
@@ -129,7 +125,6 @@ const AboutForm = () => {
     resolver: zodResolver(aboutFormSchema),
     defaultValues: {
       name: "",
-      title: "",
       bio: "",
       profileImage: "",
       socials: {
@@ -207,23 +202,7 @@ const AboutForm = () => {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Professional Title</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={!isEditing}
-                      placeholder="e.g. Full-Stack Developer"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
             <FormField
               control={form.control}
               name="bio"
