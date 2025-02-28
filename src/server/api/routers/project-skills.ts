@@ -1,8 +1,7 @@
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { skills, projectSkills } from "@/server/db/schema";
-import { get } from "http";
+import { projectSkills } from "@/server/db/schema";
 
 export const projectSkillsRouter = createTRPCRouter({
   // USE USE STATE TO CATCH THE ID OF WHAT IS BEING EDITED.

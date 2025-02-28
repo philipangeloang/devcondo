@@ -1,3 +1,5 @@
+"use client";
+
 import { ScrollArea } from "@/app/_components/ui/scroll-area";
 import {
   Tabs,
@@ -17,8 +19,14 @@ import { ProjectsForm } from "@/app/_components/blocks/projects-form";
 import { SkillsForm } from "@/app/_components/blocks/skills-form";
 import { ResumeForm } from "@/app/_components/blocks/resume-form";
 import { SettingsForm } from "@/app/_components/blocks/settings-form";
+import { useState } from "react";
+import { Button } from "@/app/_components/ui/button";
+import { IconPlus } from "@tabler/icons-react";
 
 const Content = () => {
+  const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
+  const [isSkillDialogOpen, setIsSkillDialogOpen] = useState(false);
+
   return (
     <ScrollArea className="col-span-12 sm:h-[calc(100vh-204px)]">
       <Tabs defaultValue="about" className="space-y-4">
@@ -54,27 +62,49 @@ const Content = () => {
         </TabsContent>
         <TabsContent value="projects">
           <Card>
-            <CardHeader>
-              <CardTitle>Projects</CardTitle>
-              <CardDescription>
-                Add and manage your portfolio projects
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between pb-0">
+              <div>
+                <CardTitle>Projects</CardTitle>
+                <CardDescription>
+                  Add and manage your portfolio projects
+                </CardDescription>
+              </div>
+              <Button
+                onClick={() => setIsProjectDialogOpen(true)}
+                className="cursor-pointer dark:bg-white dark:text-black"
+              >
+                <IconPlus /> Add Project
+              </Button>
             </CardHeader>
             <CardContent>
-              <ProjectsForm />
+              <ProjectsForm
+                addProjectDialog={isProjectDialogOpen}
+                setAddProjectDialog={setIsProjectDialogOpen}
+              />
             </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="skills">
           <Card>
-            <CardHeader>
-              <CardTitle>Skills</CardTitle>
-              <CardDescription>
-                Update your technical skills and expertise
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between pb-0">
+              <div>
+                <CardTitle>Skills</CardTitle>
+                <CardDescription>
+                  Update your technical skills and expertise
+                </CardDescription>
+              </div>
+              <Button
+                onClick={() => setIsSkillDialogOpen(true)}
+                className="cursor-pointer dark:bg-white dark:text-black"
+              >
+                <IconPlus /> Add Skill
+              </Button>
             </CardHeader>
             <CardContent>
-              <SkillsForm />
+              <SkillsForm
+                addSkillDialog={isSkillDialogOpen}
+                setAddSkillDialog={setIsSkillDialogOpen}
+              />
             </CardContent>
           </Card>
         </TabsContent>

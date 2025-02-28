@@ -63,6 +63,7 @@ import {
 import { Separator } from "@/app/_components/ui/separator";
 import { Badge } from "@/app/_components/ui/badge";
 import { IconCheck, IconSelector } from "@tabler/icons-react";
+import Loader from "@/app/_components/blocks/loader";
 
 const projectSchema = z.object({
   title: z.string().min(2, {
@@ -85,31 +86,16 @@ const projectSchema = z.object({
     .nonempty({ message: "Select at least one skill." }),
 });
 
-const updateProjectSchema = z.object({
-  id: z.number(),
-  title: z.string().min(2, {
-    message: "Title must be at least 2 characters.",
-  }),
-  description: z.string().min(10, {
-    message: "Description must be at least 10 characters.",
-  }),
-  imageUrl: z.string().url({
-    message: "Please enter a valid URL.",
-  }),
-  projectUrl: z
-    .string()
-    .url({
-      message: "Please enter a valid URL.",
-    })
-    .optional(),
-  skillIds: z
-    .array(z.number())
-    .nonempty({ message: "Select at least one skill." }),
-});
+type ProjectsFormProps = {
+  addProjectDialog: boolean;
+  setAddProjectDialog: (open: boolean) => void;
+};
 
-export function ProjectsForm() {
+export function ProjectsForm({
+  addProjectDialog,
+  setAddProjectDialog,
+}: ProjectsFormProps) {
   // States
-  const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState<number | null>(null); // Store the ID of the project being edited
   const [editDialogOpenMobile, setEditDialogOpenMobile] = useState<
     number | null
@@ -136,7 +122,7 @@ export function ProjectsForm() {
     onSuccess: async ({ message }) => {
       await utils.project.invalidate();
       setIsCreating(false);
-      setAddDialogOpen(false);
+      setAddProjectDialog(false);
       form.reset();
       toast(message, {
         description: new Date().toLocaleTimeString(),
@@ -144,7 +130,7 @@ export function ProjectsForm() {
     },
     onError: async (error) => {
       setIsCreating(false);
-      setAddDialogOpen(false);
+      setAddProjectDialog(false);
       toast("Error", {
         description: error.message,
       });
@@ -152,11 +138,13 @@ export function ProjectsForm() {
   });
   const { mutate: update } = api.project.update.useMutation({
     onSuccess: async ({ message }) => {
+      // Invalidate all relevant queries to refetch fresh data
       await Promise.all([
         utils.project.invalidate(),
-        utils.skill.invalidate(),
         utils.projectSkills.invalidate(),
+        utils.project.getProjectsWithSkills.invalidate(), // If this is a specific query
       ]);
+
       setIsCreating(false);
       setEditDialogOpen(null);
       updateForm.reset();
@@ -197,10 +185,9 @@ export function ProjectsForm() {
     },
   });
 
-  const updateForm = useForm<z.infer<typeof updateProjectSchema>>({
-    resolver: zodResolver(updateProjectSchema),
+  const updateForm = useForm<z.infer<typeof projectSchema>>({
+    resolver: zodResolver(projectSchema),
     defaultValues: {
-      id: 0,
       title: "",
       description: "",
       imageUrl: "",
@@ -218,10 +205,10 @@ export function ProjectsForm() {
     }
   }
 
-  function onEdit(values: z.infer<typeof updateProjectSchema>) {
+  function onEdit(values: z.infer<typeof projectSchema>) {
     try {
       setIsCreating(true);
-      update(values);
+      update({ ...values, id: editId });
     } catch (error) {
       console.error(error);
     }
@@ -233,12 +220,11 @@ export function ProjectsForm() {
       const project = allProjectWithSkills?.find((p) => p.id === editId);
       if (project) {
         updateForm.reset({
-          id: project.id, //Hidden ID in form that is prefetched and can't be edited as to always be correct
           title: project.title,
           description: project.description,
           imageUrl: project.imageUrl,
           projectUrl: project.projectUrl ?? "",
-          skillIds: projectRelativeSkill ?? [], //Key to push in the projectSkills table
+          skillIds: projectRelativeSkill ?? [], // This should now be up-to-date after invalidation
         });
       }
     }
@@ -246,18 +232,21 @@ export function ProjectsForm() {
 
   return (
     <>
-      <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-        <Toaster />
-        <DialogTrigger asChild>
-          <Button
-            onClick={() => {
+      <Dialog
+        open={addProjectDialog}
+        onOpenChange={(open) => {
+          if (!open) {
+            if (!isCreating) {
+              setAddProjectDialog(false);
               form.reset();
-            }}
-            className="cursor-pointer bg-black text-white dark:bg-white dark:text-black"
-          >
-            <IconPlus /> Add Project
-          </Button>
-        </DialogTrigger>
+            }
+          } else {
+            setAddProjectDialog(true);
+          }
+        }}
+      >
+        <Toaster />
+
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Add Project</DialogTitle>
@@ -336,30 +325,71 @@ export function ProjectsForm() {
                             <CommandList>
                               <CommandEmpty>No framework found.</CommandEmpty>
                               <CommandGroup>
-                                {allSkills?.map((framework) => (
-                                  <CommandItem
-                                    key={framework.id}
-                                    onSelect={() => {
-                                      field.onChange(
-                                        field.value.includes(framework.id)
-                                          ? field.value.filter(
-                                              (id) => id !== framework.id,
-                                            )
-                                          : [...field.value, framework.id],
-                                      );
-                                    }}
-                                  >
-                                    <IconCheck
+                                {allSkills?.map((framework) => {
+                                  const isSelected = field.value.includes(
+                                    framework.id,
+                                  );
+                                  const isInactiveAndNotSelected =
+                                    !framework.isActive && !isSelected;
+
+                                  return (
+                                    <CommandItem
+                                      key={framework.id}
+                                      onSelect={() => {
+                                        // If it's inactive and not already selected, prevent selection
+                                        if (isInactiveAndNotSelected) return;
+
+                                        field.onChange(
+                                          field.value.includes(framework.id)
+                                            ? field.value.filter(
+                                                (id) => id !== framework.id,
+                                              )
+                                            : [...field.value, framework.id],
+                                        );
+                                      }}
                                       className={cn(
-                                        "mr-2 h-4 w-4",
-                                        field.value.includes(framework.id)
-                                          ? "opacity-100"
-                                          : "opacity-0",
+                                        "flex items-center justify-between",
+                                        isInactiveAndNotSelected &&
+                                          "cursor-not-allowed opacity-50",
                                       )}
-                                    />
-                                    {framework.name}
-                                  </CommandItem>
-                                ))}
+                                    >
+                                      <div className="flex items-center">
+                                        <IconCheck
+                                          className={cn(
+                                            "mr-2 h-4 w-4",
+                                            isSelected
+                                              ? "opacity-100"
+                                              : "opacity-0",
+                                          )}
+                                        />
+                                        <span
+                                          className={cn(
+                                            isInactiveAndNotSelected &&
+                                              "text-muted-foreground",
+                                          )}
+                                        >
+                                          {framework.name}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        {!framework.isActive && (
+                                          <Badge
+                                            variant="outline"
+                                            className={cn(
+                                              "ml-2 text-xs",
+                                              isSelected &&
+                                                "bg-yellow-100 dark:bg-yellow-900/30",
+                                            )}
+                                          >
+                                            {isSelected
+                                              ? "Removable"
+                                              : "Inactive"}
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    </CommandItem>
+                                  );
+                                })}
                               </CommandGroup>
                             </CommandList>
                           </Command>
@@ -399,7 +429,7 @@ export function ProjectsForm() {
       </Dialog>
       <Separator className="my-5" />
       {isLoadingProjectWithSkills || isFetchingProjectwithSkills ? (
-        <IconLoader size={24} className="animate-spin" />
+        <Loader />
       ) : (
         <>
           {/* Bigger Screen Size Table */}
@@ -424,15 +454,21 @@ export function ProjectsForm() {
                     {/* Edit Dialog */}
                     <Dialog
                       open={editDialogOpen === project.id}
-                      onOpenChange={(isOpen) =>
-                        setEditDialogOpen(isOpen ? project.id : null)
-                      }
+                      onOpenChange={(open) => {
+                        if (!open) {
+                          if (!isCreating) {
+                            setEditDialogOpen(null);
+                            updateForm.reset();
+                          }
+                        } else {
+                          setEditDialogOpen(project.id);
+                          setEditId(project.id);
+                        }
+                      }}
                     >
                       <DialogTrigger asChild>
                         <Button
-                          onClick={() => {
-                            setEditId(project.id);
-                          }}
+                          size="icon"
                           className="cursor-pointer bg-black text-white dark:bg-white dark:text-black"
                         >
                           <IconEdit />
@@ -454,23 +490,6 @@ export function ProjectsForm() {
                               onSubmit={updateForm.handleSubmit(onEdit)}
                               className="space-y-4"
                             >
-                              {/* Hidden ID for editing purposes */}
-                              <FormField
-                                control={updateForm.control}
-                                name="id"
-                                render={({ field }) => (
-                                  <FormItem className="hidden">
-                                    <FormLabel>Hidden ID</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Hidden ID"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
                               <FormField
                                 control={updateForm.control}
                                 name="title"
@@ -522,7 +541,7 @@ export function ProjectsForm() {
                               />
                               <FormField
                                 control={updateForm.control}
-                                name="skillIds" // This field will store the selected values
+                                name="skillIds"
                                 render={({ field }) => (
                                   <FormItem>
                                     <FormLabel>Technologies Used</FormLabel>
@@ -548,39 +567,83 @@ export function ProjectsForm() {
                                                 No framework found.
                                               </CommandEmpty>
                                               <CommandGroup>
-                                                {allSkills?.map((framework) => (
-                                                  <CommandItem
-                                                    key={framework.id}
-                                                    onSelect={() => {
-                                                      field.onChange(
-                                                        field.value.includes(
-                                                          framework.id,
+                                                {allSkills?.map((framework) => {
+                                                  const isSelected =
+                                                    field.value.includes(
+                                                      framework.id,
+                                                    );
+                                                  const isInactiveAndNotSelected =
+                                                    !framework.isActive &&
+                                                    !isSelected;
+
+                                                  return (
+                                                    <CommandItem
+                                                      key={framework.id}
+                                                      onSelect={() => {
+                                                        // If it's inactive and not already selected, prevent selection
+                                                        if (
+                                                          isInactiveAndNotSelected
                                                         )
-                                                          ? field.value.filter(
-                                                              (id) =>
-                                                                id !==
+                                                          return;
+
+                                                        field.onChange(
+                                                          field.value.includes(
+                                                            framework.id,
+                                                          )
+                                                            ? field.value.filter(
+                                                                (id) =>
+                                                                  id !==
+                                                                  framework.id,
+                                                              )
+                                                            : [
+                                                                ...field.value,
                                                                 framework.id,
-                                                            )
-                                                          : [
-                                                              ...field.value,
-                                                              framework.id,
-                                                            ],
-                                                      );
-                                                    }}
-                                                  >
-                                                    <IconCheck
+                                                              ],
+                                                        );
+                                                      }}
                                                       className={cn(
-                                                        "mr-2 h-4 w-4",
-                                                        field.value.includes(
-                                                          framework.id,
-                                                        )
-                                                          ? "opacity-100"
-                                                          : "opacity-0",
+                                                        "flex items-center justify-between",
+                                                        isInactiveAndNotSelected &&
+                                                          "cursor-not-allowed opacity-50",
                                                       )}
-                                                    />
-                                                    {framework.name}
-                                                  </CommandItem>
-                                                ))}
+                                                    >
+                                                      <div className="flex items-center">
+                                                        <IconCheck
+                                                          className={cn(
+                                                            "mr-2 h-4 w-4",
+                                                            isSelected
+                                                              ? "opacity-100"
+                                                              : "opacity-0",
+                                                          )}
+                                                        />
+                                                        <span
+                                                          className={cn(
+                                                            isInactiveAndNotSelected &&
+                                                              "text-muted-foreground",
+                                                          )}
+                                                        >
+                                                          {framework.name}
+                                                        </span>
+                                                      </div>
+                                                      <div className="flex items-center gap-2">
+                                                        {!framework.isActive && (
+                                                          <Badge
+                                                            variant="outline"
+                                                            className={cn(
+                                                              "ml-2 text-xs",
+                                                              isSelected &&
+                                                                "bg-yellow-100 dark:bg-yellow-900/30",
+                                                            )}
+                                                          >
+                                                            {isSelected
+                                                              ? "Removable"
+                                                              : "Inactive"}
+                                                          </Badge>
+                                                        )}
+                                                      </div>
+                                                    </CommandItem>
+                                                  );
+                                                })}
                                               </CommandGroup>
                                             </CommandList>
                                           </Command>
@@ -627,6 +690,7 @@ export function ProjectsForm() {
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button
+                          size="icon"
                           variant="outline"
                           className="cursor-pointer bg-red-500 text-white dark:bg-red-500"
                         >
@@ -676,17 +740,20 @@ export function ProjectsForm() {
                   {/* Edit Dialog */}
                   <Dialog
                     open={editDialogOpenMobile === project.id}
-                    onOpenChange={(isOpen) =>
-                      setEditDialogOpenMobile(isOpen ? project.id : null)
-                    }
+                    onOpenChange={(open) => {
+                      if (!open) {
+                        if (!isCreating) {
+                          setEditDialogOpenMobile(null);
+                          updateForm.reset();
+                        }
+                      } else {
+                        setEditDialogOpenMobile(project.id);
+                        setEditId(project.id);
+                      }
+                    }}
                   >
                     <DialogTrigger className="w-full" asChild>
-                      <Button
-                        onClick={() => {
-                          setEditId(project.id);
-                        }}
-                        className="cursor-pointer bg-white text-black dark:bg-black dark:text-white"
-                      >
+                      <Button className="cursor-pointer bg-white text-black dark:bg-black dark:text-white">
                         <IconEdit />
                       </Button>
                     </DialogTrigger>
@@ -705,20 +772,6 @@ export function ProjectsForm() {
                             onSubmit={updateForm.handleSubmit(onEdit)}
                             className="space-y-4"
                           >
-                            {/* Hidden ID for editing purposes */}
-                            <FormField
-                              control={updateForm.control}
-                              name="id"
-                              render={({ field }) => (
-                                <FormItem className="hidden">
-                                  <FormLabel>Hidden ID</FormLabel>
-                                  <FormControl>
-                                    <Input placeholder="Hidden ID" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
                             <FormField
                               control={updateForm.control}
                               name="title"
@@ -770,7 +823,7 @@ export function ProjectsForm() {
                             />
                             <FormField
                               control={updateForm.control}
-                              name="skillIds" // This field will store the selected values
+                              name="skillIds"
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>Technologies Used</FormLabel>
@@ -796,39 +849,83 @@ export function ProjectsForm() {
                                               No framework found.
                                             </CommandEmpty>
                                             <CommandGroup>
-                                              {allSkills?.map((framework) => (
-                                                <CommandItem
-                                                  key={framework.id}
-                                                  onSelect={() => {
-                                                    field.onChange(
-                                                      field.value.includes(
-                                                        framework.id,
+                                              {allSkills?.map((framework) => {
+                                                const isSelected =
+                                                  field.value.includes(
+                                                    framework.id,
+                                                  );
+                                                const isInactiveAndNotSelected =
+                                                  !framework.isActive &&
+                                                  !isSelected;
+
+                                                return (
+                                                  <CommandItem
+                                                    key={framework.id}
+                                                    onSelect={() => {
+                                                      // If it's inactive and not already selected, prevent selection
+                                                      if (
+                                                        isInactiveAndNotSelected
                                                       )
-                                                        ? field.value.filter(
-                                                            (id) =>
-                                                              id !==
+                                                        return;
+
+                                                      field.onChange(
+                                                        field.value.includes(
+                                                          framework.id,
+                                                        )
+                                                          ? field.value.filter(
+                                                              (id) =>
+                                                                id !==
+                                                                framework.id,
+                                                            )
+                                                          : [
+                                                              ...field.value,
                                                               framework.id,
-                                                          )
-                                                        : [
-                                                            ...field.value,
-                                                            framework.id,
-                                                          ],
-                                                    );
-                                                  }}
-                                                >
-                                                  <IconCheck
+                                                            ],
+                                                      );
+                                                    }}
                                                     className={cn(
-                                                      "mr-2 h-4 w-4",
-                                                      field.value.includes(
-                                                        framework.id,
-                                                      )
-                                                        ? "opacity-100"
-                                                        : "opacity-0",
+                                                      "flex items-center justify-between",
+                                                      isInactiveAndNotSelected &&
+                                                        "cursor-not-allowed opacity-50",
                                                     )}
-                                                  />
-                                                  {framework.name}
-                                                </CommandItem>
-                                              ))}
+                                                  >
+                                                    <div className="flex items-center">
+                                                      <IconCheck
+                                                        className={cn(
+                                                          "mr-2 h-4 w-4",
+                                                          isSelected
+                                                            ? "opacity-100"
+                                                            : "opacity-0",
+                                                        )}
+                                                      />
+                                                      <span
+                                                        className={cn(
+                                                          isInactiveAndNotSelected &&
+                                                            "text-muted-foreground",
+                                                        )}
+                                                      >
+                                                        {framework.name}
+                                                      </span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                      {!framework.isActive && (
+                                                        <Badge
+                                                          variant="outline"
+                                                          className={cn(
+                                                            "ml-2 text-xs",
+                                                            isSelected &&
+                                                              "bg-yellow-100 dark:bg-yellow-900/30",
+                                                          )}
+                                                        >
+                                                          {isSelected
+                                                            ? "Removable"
+                                                            : "Inactive"}
+                                                        </Badge>
+                                                      )}
+                                                    </div>
+                                                  </CommandItem>
+                                                );
+                                              })}
                                             </CommandGroup>
                                           </CommandList>
                                         </Command>

@@ -15,7 +15,6 @@ import {
 } from "@/app/_components/ui/form";
 import { Input } from "@/app/_components/ui/input";
 import { toast } from "sonner";
-import { Badge } from "@/app/_components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -37,10 +36,19 @@ import {
 } from "@/app/_components/ui/alert-dialog";
 import { Toaster } from "@/app/_components/ui/sonner";
 import { Separator } from "@/app/_components/ui/separator";
-import { IconLoader, IconPlus, IconX } from "@tabler/icons-react";
+import { Switch } from "@/app/_components/ui/switch";
+import {
+  IconEdit,
+  IconTrash,
+  IconBolt,
+  IconCircleX,
+} from "@tabler/icons-react";
 import { useState } from "react";
 import { api } from "@/trpc/react";
-import { Switch } from "../ui/switch";
+import Loader from "@/app/_components/blocks/loader";
+import { Card, CardContent } from "@/app/_components/ui/card";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/app/_components/ui/badge";
 
 const skillsFormSchema = z.object({
   name: z.string().min(1, {
@@ -57,11 +65,18 @@ const updateSkillsFormSchema = z.object({
   isActive: z.boolean().default(true),
 });
 
-export function SkillsForm() {
+type SkillFormProps = {
+  addSkillDialog: boolean;
+  setAddSkillDialog: (open: boolean) => void;
+};
+
+export function SkillsForm({
+  addSkillDialog,
+  setAddSkillDialog,
+}: SkillFormProps) {
   // States
   const [isCreating, setIsCreating] = useState(false); //for loading state
   const [editDialogOpen, setEditDialogOpen] = useState<number | null>(null); // Store the ID of the project being edited
-  const [open, setOpen] = useState(false); //for dialog state
   // TRPC Hooks
   const utils = api.useUtils();
   const { data: allSkills, isLoading: allSkillsLoading } =
@@ -70,7 +85,7 @@ export function SkillsForm() {
     onSuccess: async () => {
       await utils.skill.invalidate();
       setIsCreating(false);
-      setOpen(false);
+      setAddSkillDialog(false);
       form.reset();
       toast("Successfully Added", {
         description: new Date().toLocaleTimeString(),
@@ -118,33 +133,48 @@ export function SkillsForm() {
     },
   });
 
+  // Get project skills to show usage count
+  const { data: allProjectWithSkills } =
+    api.project.getProjectsWithSkills.useQuery();
+
+  // Function to get project count for a skill
+  const getProjectCount = (skillId: number) => {
+    return (
+      allProjectWithSkills?.reduce((count, project) => {
+        return (
+          count + (project.skills?.some((ps) => ps.skillId === skillId) ? 1 : 0)
+        );
+      }, 0) ?? 0
+    );
+  };
+
   function onSubmit(values: z.infer<typeof skillsFormSchema>) {
-    // Here you would typically save the data to your backend
     setIsCreating(true);
     create(values);
   }
 
   function onEdit(values: z.infer<typeof updateSkillsFormSchema>) {
-    // Here you would typically save the data to your backend
     setIsCreating(true);
     update(values);
-    console.log(values);
   }
 
   return (
     <>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <Toaster />
-        <DialogTrigger asChild>
-          <Button
-            onClick={() => {
+      <Dialog
+        open={addSkillDialog}
+        onOpenChange={(open) => {
+          if (!open) {
+            if (!isCreating) {
+              setAddSkillDialog(false);
               form.reset();
-            }}
-            className="cursor-pointer bg-black text-white dark:bg-white dark:text-black"
-          >
-            <IconPlus /> Add Skill
-          </Button>
-        </DialogTrigger>
+            }
+          } else {
+            setAddSkillDialog(true);
+          }
+        }}
+      >
+        <Toaster />
+
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Add Skill</DialogTitle>
@@ -186,136 +216,193 @@ export function SkillsForm() {
       </Dialog>
       <Separator className="my-5" />
       {allSkillsLoading ? (
-        <IconLoader size={24} className="animate-spin" />
+        <Loader />
       ) : (
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {allSkills?.map((skill) => (
-            <Dialog
+            <Card
               key={skill.id}
-              open={editDialogOpen === skill.id}
-              onOpenChange={(isOpen) =>
-                setEditDialogOpen(isOpen ? skill.id : null)
-              }
+              className={cn(
+                "group relative transition-all duration-300 hover:shadow-lg",
+                skill.isActive
+                  ? "border-border"
+                  : "border-muted bg-muted/30 dark:bg-muted/10 border-dashed",
+              )}
             >
-              <Badge className="flex cursor-pointer justify-between gap-1">
-                <DialogTrigger asChild>
-                  <p
-                    onClick={() => {
-                      updateForm.reset({
-                        id: skill.id,
-                        name: skill.name,
-                        isActive: skill.isActive,
-                      });
-                    }}
-                  >
-                    {skill.name}
-                  </p>
-                </DialogTrigger>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <IconX size={15} />
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Are you absolutely sure?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action is irreversible. Deleting this skill will
-                        also remove it from all associated projects.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => {
-                          deleteSkill(skill.id);
-                        }}
-                        className="cursor-pointer bg-red-500"
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <h3
+                        className={cn(
+                          "text-lg font-semibold transition-colors",
+                          !skill.isActive && "text-muted-foreground",
+                        )}
                       >
-                        Continue
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </Badge>
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>Edit Skill</DialogTitle>
-                  <DialogDescription>
-                    Edit skill here. Click save when you&apos;re done.
-                  </DialogDescription>
-                </DialogHeader>
-                <Form {...updateForm}>
-                  <form
-                    onSubmit={updateForm.handleSubmit(onEdit)}
-                    className="space-y-4"
-                  >
-                    {/* Hidden ID for editing purposes */}
-                    <FormField
-                      control={updateForm.control}
-                      name="id"
-                      render={({ field }) => (
-                        <FormItem className="hidden">
-                          <FormLabel>Hidden ID</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Hidden ID" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                        {skill.name}
+                      </h3>
+                      {!skill.isActive && (
+                        <Badge
+                          variant="outline"
+                          className="text-muted-foreground border-dashed text-xs font-normal"
+                        >
+                          Inactive
+                        </Badge>
                       )}
-                    />
-                    <FormField
-                      control={updateForm.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Name</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="React.js, Next.js, Laravel..."
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={updateForm.control}
-                      name="isActive"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                          <div className="space-y-0.5">
-                            <FormLabel className="text-base">Active</FormLabel>
-                            <FormDescription className="text-xs">
-                              Disabling a skill keeps it in existing projects
-                              but blocks it from being added to new projects.
-                            </FormDescription>
-                          </div>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-
-                    <div className="">
-                      <Button
-                        type="submit"
-                        disabled={isCreating}
-                        className="cursor-pointer bg-black text-white dark:bg-white dark:text-black"
-                      >
-                        {isCreating ? "Saving..." : "Save"}
-                      </Button>
                     </div>
-                  </form>
-                </Form>
-              </DialogContent>
-            </Dialog>
+                    <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                      <IconBolt
+                        size={16}
+                        className={cn(
+                          "text-yellow-500",
+                          !skill.isActive && "text-muted-foreground",
+                        )}
+                      />
+                      <span>{getProjectCount(skill.id)} projects</span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+                    <Dialog
+                      open={editDialogOpen === skill.id}
+                      onOpenChange={(isOpen) => {
+                        setEditDialogOpen(isOpen ? skill.id : null);
+                        if (isOpen) {
+                          updateForm.reset({
+                            id: skill.id,
+                            name: skill.name,
+                            isActive: skill.isActive,
+                          });
+                        }
+                      }}
+                    >
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 cursor-pointer"
+                        >
+                          <IconEdit className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Edit Skill</DialogTitle>
+                          <DialogDescription>
+                            Edit skill here. Click save when you&apos;re done.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <Form {...updateForm}>
+                          <form
+                            onSubmit={updateForm.handleSubmit(onEdit)}
+                            className="space-y-4"
+                          >
+                            {/* Hidden ID for editing purposes */}
+                            <FormField
+                              control={updateForm.control}
+                              name="id"
+                              render={({ field }) => (
+                                <FormItem className="hidden">
+                                  <FormLabel>Hidden ID</FormLabel>
+                                  <FormControl>
+                                    <Input placeholder="Hidden ID" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={updateForm.control}
+                              name="name"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Name</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="React.js, Next.js, Laravel..."
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={updateForm.control}
+                              name="isActive"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                  <div className="space-y-0.5">
+                                    <FormLabel className="text-base">
+                                      Active
+                                    </FormLabel>
+                                    <FormDescription className="text-xs">
+                                      Disabling a skill keeps it in existing
+                                      projects but blocks it from being added to
+                                      new projects.
+                                    </FormDescription>
+                                  </div>
+                                  <FormControl>
+                                    <Switch
+                                      checked={field.value}
+                                      onCheckedChange={field.onChange}
+                                    />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+
+                            <div className="">
+                              <Button
+                                type="submit"
+                                disabled={isCreating}
+                                className="cursor-pointer bg-black text-white dark:bg-white dark:text-black"
+                              >
+                                {isCreating ? "Saving..." : "Save"}
+                              </Button>
+                            </div>
+                          </form>
+                        </Form>
+                      </DialogContent>
+                    </Dialog>
+
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="hover:text-destructive h-8 w-8 cursor-pointer"
+                        >
+                          <IconTrash className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Are you absolutely sure?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action is irreversible. Deleting this skill
+                            will also remove it from all associated projects.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => {
+                              deleteSkill(skill.id);
+                            }}
+                            className="cursor-pointer bg-red-500"
+                          >
+                            Continue
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}

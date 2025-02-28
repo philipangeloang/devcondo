@@ -4,6 +4,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { projects, projectSkills } from "@/server/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
 
 export const projectsRouter = createTRPCRouter({
   get: protectedProcedure.query(async ({ ctx }) => {
@@ -59,6 +60,32 @@ export const projectsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const { skillIds } = input;
+
+      // Verify all skills are active
+      const selectedSkills = await ctx.db.query.skills.findMany({
+        where: (skills, { and, inArray }) =>
+          and(
+            inArray(skills.id, skillIds),
+            eq(skills.userId, ctx.session.user.id),
+          ),
+      });
+
+      // Check if all skills exist and are active
+      if (selectedSkills.length !== skillIds.length) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "One or more selected skills do not exist",
+        });
+      }
+
+      const inactiveSkills = selectedSkills.filter((skill) => !skill.isActive);
+      if (inactiveSkills.length > 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Cannot add inactive skills: ${inactiveSkills.map((s) => s.name).join(", ")}`,
+        });
+      }
+
       const newProjectId = await ctx.db
         .insert(projects)
         .values({
@@ -95,6 +122,47 @@ export const projectsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const { skillIds } = input;
+
+      // Get existing project skills
+      const existingProjectSkills = await ctx.db.query.projectSkills.findMany({
+        where: (projectSkills, { eq }) => eq(projectSkills.projectId, input.id),
+      });
+      const existingSkillIds = existingProjectSkills.map((ps) => ps.skillId);
+
+      // Find which skills are newly added (not in existing skills)
+      const newlyAddedSkillIds = skillIds.filter(
+        (skillId) => !existingSkillIds.includes(skillId),
+      );
+
+      // Verify all skills exist and belong to user
+      const selectedSkills = await ctx.db.query.skills.findMany({
+        where: (skills, { and, inArray }) =>
+          and(
+            inArray(skills.id, skillIds),
+            eq(skills.userId, ctx.session.user.id),
+          ),
+      });
+
+      // Check if all skills exist
+      if (selectedSkills.length !== skillIds.length) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "One or more selected skills do not exist",
+        });
+      }
+
+      // Only check inactive status for newly added skills
+      const inactiveNewSkills = selectedSkills.filter(
+        (skill) => !skill.isActive && newlyAddedSkillIds.includes(skill.id),
+      );
+
+      if (inactiveNewSkills.length > 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Cannot add inactive skills: ${inactiveNewSkills.map((s) => s.name).join(", ")}`,
+        });
+      }
+
       const existingProject = await ctx.db.query.projects.findFirst({
         where: (projects, { and, eq }) =>
           and(
@@ -103,11 +171,6 @@ export const projectsRouter = createTRPCRouter({
           ),
       });
 
-      const existingProjectSkills = await ctx.db.query.projectSkills.findMany({
-        where: (projectSkills, { eq }) => eq(projectSkills.projectId, input.id),
-      });
-
-      const existingSkillIds = existingProjectSkills.map((ps) => ps.skillId);
       const skillsToAdd = skillIds.filter(
         (id) => !existingSkillIds.includes(id),
       ); //If the skill is not in the existing skillIds, add it

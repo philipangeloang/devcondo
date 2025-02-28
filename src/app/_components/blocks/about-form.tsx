@@ -22,6 +22,7 @@ import * as z from "zod";
 
 import { api } from "@/trpc/react";
 import { useState, useEffect } from "react";
+import Loader from "@/app/_components/blocks/loader";
 import ProviderSignout from "../auth/providers-signout";
 
 const aboutFormSchema = z.object({
@@ -184,7 +185,7 @@ const AboutForm = () => {
   return (
     <>
       {isAboutInfoLoading ? (
-        <IconLoader size={24} className="animate-spin" />
+        <Loader />
       ) : (
         <Form {...form}>
           <Toaster />
