@@ -39,7 +39,7 @@ import {
   AlertDialogTrigger,
 } from "@/app/_components/ui/alert-dialog";
 
-import Loader from "@/app/_components/blocks/loader";
+import ExperienceLoader from "@/app/_components/blocks/experience-loader";
 
 const certificationSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters"),
@@ -232,7 +232,7 @@ export function CertificationsForm({
 
       {/* Certifications List */}
       {isCertificationsLoading || isCertificationsFetching ? (
-        <Loader />
+        <ExperienceLoader />
       ) : certifications?.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8 text-center">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">

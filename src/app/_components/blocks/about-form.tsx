@@ -21,16 +21,25 @@ import * as z from "zod";
 
 import { api } from "@/trpc/react";
 import { useState, useEffect } from "react";
-import Loader from "@/app/_components/blocks/loader";
+import ExperienceLoader from "@/app/_components/blocks/experience-loader";
 import ProviderSignout from "../auth/providers-signout";
 
 const aboutFormSchema = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters.",
   }),
-  bio: z.string().min(10, {
-    message: "Bio must be at least 10 characters.",
-  }),
+  title: z
+    .string()
+    .min(1, {
+      message: "Title must be at least 1 character.",
+    })
+    .optional(),
+  bio: z
+    .string()
+    .min(10, {
+      message: "Bio must be at least 10 characters.",
+    })
+    .optional(),
   profileImage: z.string().url({
     message: "Please enter a valid URL.",
   }),
@@ -160,7 +169,9 @@ const AboutForm = () => {
   useEffect(() => {
     if (aboutInfo && !isAboutInfoLoading) {
       form.reset({
-        ...aboutInfo,
+        name: aboutInfo.name,
+        title: aboutInfo.title ?? undefined,
+        bio: aboutInfo.bio ?? undefined,
         profileImage: aboutInfo.profileImage ?? "",
         socials: {
           ...aboutInfo.socials,
@@ -180,11 +191,11 @@ const AboutForm = () => {
   return (
     <>
       {isAboutInfoLoading ? (
-        <Loader />
+        <ExperienceLoader />
       ) : (
         <Form {...form}>
           <Toaster />
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="name"
@@ -202,6 +213,23 @@ const AboutForm = () => {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Professional Title</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={!isEditing}
+                      placeholder="e.g. Full Stack Developer"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
@@ -212,7 +240,7 @@ const AboutForm = () => {
                   <FormControl>
                     <Textarea
                       disabled={!isEditing}
-                      placeholder="Write a short bio about yourself"
+                      placeholder="Best way to describe yourself in 2-3 sentences."
                       className="resize-none"
                       {...field}
                     />

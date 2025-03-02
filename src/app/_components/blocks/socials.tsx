@@ -10,10 +10,48 @@ import {
   IconMail,
 } from "@tabler/icons-react";
 import { api } from "@/trpc/react";
+import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
+
+const Skeleton = dynamic(
+  () => import("@/app/_components/ui/skeleton").then((mod) => mod.Skeleton),
+  { ssr: false },
+);
+
+const SocialSkeleton = () => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
+
+  return (
+    <div className="flex gap-2">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <Skeleton
+          key={i}
+          className="bg-skin-fill-accent/50 h-9 w-9 rounded-lg"
+        />
+      ))}
+    </div>
+  );
+};
 
 const Socials = () => {
   //TRPC Hooks
-  const { data: aboutInfo } = api.aboutInfo.get.useQuery();
+  const { data: aboutInfo, isLoading } = api.aboutInfo.get.useQuery();
+
+  if (isLoading) {
+    return <SocialSkeleton />;
+  }
+
+  if (!aboutInfo?.socials) {
+    return null;
+  }
 
   return (
     <div className="flex gap-2">

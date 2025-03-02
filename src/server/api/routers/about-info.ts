@@ -9,7 +9,8 @@ export const aboutInfoRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string().min(1),
-        bio: z.string().min(1),
+        title: z.string().min(1).optional(),
+        bio: z.string().min(1).optional(),
         profileImage: z.string().url(),
         socials: z.object({
           twitter: z.string().url().optional().or(z.literal("")),
@@ -44,6 +45,7 @@ export const aboutInfoRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string().min(1).optional(),
+        title: z.string().min(1).optional(),
         bio: z.string().min(1).optional(),
         profileImage: z.string().url().optional(),
         socials: z.object({
@@ -67,6 +69,10 @@ export const aboutInfoRouter = createTRPCRouter({
 
       if (currentAboutInfo && currentAboutInfo.name !== input.name) {
         updateData.name = input.name;
+      }
+
+      if (currentAboutInfo && currentAboutInfo.title !== input.title) {
+        updateData.title = input.title;
       }
 
       if (currentAboutInfo && currentAboutInfo.bio !== input.bio) {

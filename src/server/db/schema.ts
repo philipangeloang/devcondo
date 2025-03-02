@@ -257,7 +257,8 @@ export const aboutInfo = createTable("about_info", {
     .notNull()
     .references(() => users.id),
   name: varchar("name", { length: 255 }).notNull(),
-  bio: text("bio").notNull(),
+  title: varchar("title", { length: 255 }),
+  bio: text("bio"),
   profileImage: varchar("profile_image", { length: 255 }),
   socials: json("socials").$type<{
     twitter?: string;

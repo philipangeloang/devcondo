@@ -7,14 +7,6 @@ import { and, eq, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const projectsRouter = createTRPCRouter({
-  get: protectedProcedure.query(async ({ ctx }) => {
-    const allProjects = await ctx.db.query.projects.findMany({
-      where: (projects, { eq }) => eq(projects.userId, ctx.session.user.id),
-    });
-
-    return allProjects ?? null;
-  }),
-
   getProjectsWithSkills: protectedProcedure.query(async ({ ctx }) => {
     const allProjectsWithSkills = await ctx.db.query.projects.findMany({
       where: (projects, { eq }) => eq(projects.userId, ctx.session.user.id),
@@ -24,28 +16,6 @@ export const projectsRouter = createTRPCRouter({
     });
 
     return allProjectsWithSkills ?? null;
-
-    //   where: (projects, { eq }) => eq(projects.userId, ctx.session.user.id),
-    // });
-
-    // const projectSkills = await ctx.db.query.projectSkills.findMany({
-    //   where: (projectSkills, { in: $in }) => $in(projectSkills.projectId, allProjects.map((project) => project.id)),
-    // });
-
-    // const skills = await ctx.db.query.skills.findMany({
-    //   where: (skills, { in: $in }) => $in(skills.id, projectSkills.map((projectSkill) => projectSkill.skillId)),
-    // });
-
-    // const projectsWithSkills = allProjects.map((project) => {
-    //   const projectSkillIds = projectSkills.filter((projectSkill) => projectSkill.projectId === project.id).map((projectSkill) => projectSkill.skillId);
-    //   const projectSkills = skills.filter((skill) => projectSkillIds.includes(skill.id));
-    //   return {
-    //     ...project,
-    //     skills: projectSkills,
-    //   };
-    // });
-
-    // return projectsWithSkills ?? null;
   }),
 
   create: protectedProcedure

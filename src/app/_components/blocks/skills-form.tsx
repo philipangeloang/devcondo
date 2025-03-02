@@ -37,15 +37,10 @@ import {
 import { Toaster } from "@/app/_components/ui/sonner";
 import { Separator } from "@/app/_components/ui/separator";
 import { Switch } from "@/app/_components/ui/switch";
-import {
-  IconEdit,
-  IconTrash,
-  IconBolt,
-  IconCircleX,
-} from "@tabler/icons-react";
+import { IconEdit, IconTrash, IconBolt } from "@tabler/icons-react";
 import { useState } from "react";
 import { api } from "@/trpc/react";
-import Loader from "@/app/_components/blocks/loader";
+import ExperienceLoader from "@/app/_components/blocks/experience-loader";
 import { Card, CardContent } from "@/app/_components/ui/card";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/app/_components/ui/badge";
@@ -216,7 +211,7 @@ export function SkillsForm({
       </Dialog>
       <Separator className="my-5" />
       {allSkillsLoading ? (
-        <Loader />
+        <ExperienceLoader />
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {allSkills?.map((skill) => (

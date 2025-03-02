@@ -63,7 +63,7 @@ import {
 import { Separator } from "@/app/_components/ui/separator";
 import { Badge } from "@/app/_components/ui/badge";
 import { IconCheck, IconSelector } from "@tabler/icons-react";
-import Loader from "@/app/_components/blocks/loader";
+import ExperienceLoader from "@/app/_components/blocks/experience-loader";
 
 const projectSchema = z.object({
   title: z.string().min(2, {
@@ -414,7 +414,7 @@ export function ProjectsForm({
                   </FormItem>
                 )}
               />
-              <div className="">
+              <div>
                 <Button
                   type="submit"
                   disabled={isCreating}
@@ -429,7 +429,7 @@ export function ProjectsForm({
       </Dialog>
       <Separator className="my-5" />
       {isLoadingProjectWithSkills || isFetchingProjectwithSkills ? (
-        <Loader />
+        <ExperienceLoader />
       ) : (
         <>
           {/* Bigger Screen Size Table */}

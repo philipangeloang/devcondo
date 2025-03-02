@@ -40,7 +40,7 @@ import {
   AlertDialogTrigger,
 } from "@/app/_components/ui/alert-dialog";
 
-import Loader from "@/app/_components/blocks/loader";
+import Loader from "@/app/_components/blocks/experience-loader";
 
 // Helper function to format date to year
 function formatDateToYear(dateString: string | undefined | null): string {

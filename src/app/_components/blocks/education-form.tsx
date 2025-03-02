@@ -39,7 +39,7 @@ import {
   AlertDialogTrigger,
 } from "@/app/_components/ui/alert-dialog";
 
-import Loader from "@/app/_components/blocks/loader";
+import ExperienceLoader from "@/app/_components/blocks/experience-loader";
 
 // Helper function to format date to year
 function formatDateToYear(dateString: string | undefined | null): string {
@@ -286,7 +286,7 @@ export function EducationForm({
 
       {/* Education List */}
       {isEducationsLoading || isEducationsFetching ? (
-        <Loader />
+        <ExperienceLoader />
       ) : educations?.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8 text-center">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">

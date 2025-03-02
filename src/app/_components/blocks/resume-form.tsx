@@ -30,7 +30,7 @@ import {
 import { ExperiencesForm } from "./experiences-form";
 import { EducationForm } from "./education-form";
 import { CertificationsForm } from "./certifications-form";
-import Loader from "@/app/_components/blocks/loader";
+import ExperienceLoader from "@/app/_components/blocks/experience-loader";
 
 const resumeFormSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
@@ -122,7 +122,7 @@ export function ResumeForm() {
     <>
       <Toaster />
       {isResumeLoading ? (
-        <Loader />
+        <ExperienceLoader />
       ) : (
         <Tabs
           defaultValue="basic"

@@ -27,6 +27,15 @@ export const skillsRouter = createTRPCRouter({
     return skill ?? null;
   }),
 
+  getActive: protectedProcedure.query(async ({ ctx }) => {
+    const skill = await ctx.db.query.skills.findMany({
+      where: (skills, { eq, and }) =>
+        and(eq(skills.userId, ctx.session.user.id), eq(skills.isActive, true)),
+    });
+
+    return skill ?? null;
+  }),
+
   update: protectedProcedure
     .input(
       z.object({

@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent } from "@/app/_components/ui/card";
 import { Skeleton } from "@/app/_components/ui/skeleton";
 
-const Loader = () => {
+const ExperienceLoader = () => {
   return (
     <div className="space-y-4">
       {[1, 2].map((index) => (
@@ -28,4 +28,4 @@ const Loader = () => {
   );
 };
 
-export default Loader;
+export default ExperienceLoader;

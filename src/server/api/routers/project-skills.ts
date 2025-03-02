@@ -11,7 +11,7 @@ export const projectSkillsRouter = createTRPCRouter({
           where: (projectSkills, { eq }) => eq(projectSkills.projectId, input),
         })
         .then((skills) => {
-          return skills.map((skill) => skill.skillId); // Extract only the skillId
+          return skills.map((skill) => skill.skillId); // Extract only the skillId to be used in filling the form on update
         });
 
       return relativeSkills ?? null;
