@@ -2,10 +2,18 @@
 /* eslint-disable @typescript-eslint/await-thenable */
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
-
+import { auth } from "@/server/auth";
 const f = createUploadthing();
 
-const auth = (req: Request) => ({ id: "fakeId" }); // Fake auth function
+const handleAuth = async () => {
+  try {
+    const session = await auth();
+    return session?.user ? { id: session.user.id } : null;
+  } catch (error) {
+    console.error("Auth error:", error);
+    return null;
+  }
+};
 
 // FileRouter for your app, can contain multiple FileRoutes
 export const ourFileRouter = {
@@ -21,9 +29,9 @@ export const ourFileRouter = {
     },
   })
     // Set permissions and file types for this FileRoute
-    .middleware(async ({ req }) => {
+    .middleware(async () => {
       // This code runs on your server before upload
-      const user = await auth(req);
+      const user = await handleAuth();
 
       // If you throw, the user will not be able to upload
       if (!user) throw new UploadThingError("Unauthorized");
@@ -35,7 +43,7 @@ export const ourFileRouter = {
       // This code RUNS ON YOUR SERVER after upload
       console.log("Upload complete for userId:", metadata.userId);
 
-      console.log("file url", file.url);
+      console.log("file url", file.ufsUrl);
 
       // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
       return { uploadedBy: metadata.userId };

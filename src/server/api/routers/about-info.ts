@@ -11,7 +11,7 @@ export const aboutInfoRouter = createTRPCRouter({
         name: z.string().min(1),
         title: z.string().min(1).optional(),
         bio: z.string().min(1).optional(),
-        profileImage: z.string().url(),
+        profileImage: z.string().url().or(z.literal("")),
         socials: z.object({
           twitter: z.string().url().optional().or(z.literal("")),
           github: z.string().url().optional().or(z.literal("")),
@@ -47,7 +47,7 @@ export const aboutInfoRouter = createTRPCRouter({
         name: z.string().min(1).optional(),
         title: z.string().min(1).optional(),
         bio: z.string().min(1).optional(),
-        profileImage: z.string().url().optional(),
+        profileImage: z.string().url().optional().or(z.literal("")),
         socials: z.object({
           twitter: z.string().url().optional().or(z.literal("")),
           github: z.string().url().optional().or(z.literal("")),

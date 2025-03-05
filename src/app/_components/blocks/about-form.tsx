@@ -23,6 +23,8 @@ import { api } from "@/trpc/react";
 import { useState, useEffect } from "react";
 import ExperienceLoader from "@/app/_components/blocks/experience-loader";
 import ProviderSignout from "../auth/providers-signout";
+import { useUploadThing } from "@/utils/uploadthing";
+import { ProfileUploader } from "@/app/_components/blocks/profile-uploader";
 
 const aboutFormSchema = z.object({
   name: z.string().min(2, {
@@ -40,9 +42,12 @@ const aboutFormSchema = z.object({
       message: "Bio must be at least 10 characters.",
     })
     .optional(),
-  profileImage: z.string().url({
-    message: "Please enter a valid URL.",
-  }),
+  profileImage: z
+    .string()
+    .url({
+      message: "Please enter a valid URL.",
+    })
+    .or(z.literal("")),
   socials: z.object({
     twitter: z
       .string()
@@ -91,6 +96,12 @@ const AboutForm = () => {
   // States
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
+  const { startUpload } = useUploadThing("imageUploader", {
+    onUploadError: () => {
+      toast("error occurred while uploading");
+    },
+  });
 
   // TRPC hooks
   const utils = api.useUtils();
@@ -150,18 +161,44 @@ const AboutForm = () => {
   });
 
   // Submit handler
-  function onSubmit(values: z.infer<typeof aboutFormSchema>) {
+  async function onSubmit(values: z.infer<typeof aboutFormSchema>) {
     try {
-      if (!aboutInfo) {
-        setIsSaving(true);
+      setIsSaving(true);
+      let finalImageUrl = values.profileImage;
 
-        create(values);
+      // If there is a file uploaded, upload it
+      if (files.length > 0) {
+        const uploadResult = await startUpload(files);
+        if (!uploadResult?.[0]?.ufsUrl) {
+          setIsSaving(false);
+          form.setError("profileImage", {
+            message: "Failed to upload image. Please try again.",
+          });
+          return;
+        }
+        finalImageUrl = uploadResult[0].ufsUrl;
+        setFiles([]); // Reset files state properly
+      }
+
+      // Validate that we have either an existing image or a new upload
+      if (!finalImageUrl && !files.length) {
+        setIsSaving(false);
+        form.setError("profileImage", {
+          message: "Profile image is required",
+        });
+        return;
+      }
+
+      // If there is no about info, create it else update it
+      if (!aboutInfo) {
+        create({ ...values, profileImage: finalImageUrl });
       } else {
-        setIsSaving(true);
-        update(values);
+        update({ ...values, profileImage: finalImageUrl });
       }
     } catch (error) {
       console.error(error);
+      setIsSaving(false);
+      toast("Error uploading file");
     }
   }
 
@@ -255,19 +292,17 @@ const AboutForm = () => {
             <FormField
               control={form.control}
               name="profileImage"
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
-                  <FormLabel>Profile Image URL</FormLabel>
+                  <FormLabel>Profile Image</FormLabel>
                   <FormControl>
-                    <Input
+                    <ProfileUploader
+                      files={files}
+                      onFilesChange={setFiles}
                       disabled={!isEditing}
-                      placeholder="https://example.com/your-image.jpg"
-                      {...field}
+                      fetchedImage={aboutInfo?.profileImage ?? ""}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Enter the URL of your profile image
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

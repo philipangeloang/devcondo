@@ -12,6 +12,14 @@ const config = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.ufs.sh",
+      },
+    ],
+  },
 };
 
 export default config;

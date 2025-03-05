@@ -2,6 +2,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@import "uploadthing/tw/v4";
+@source "../../node_modules/@uploadthing/react/dist";
+
 @theme {
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
