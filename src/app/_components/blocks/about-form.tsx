@@ -97,6 +97,8 @@ const AboutForm = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
+
+  // Uploadthing Hook
   const { startUpload } = useUploadThing("imageUploader", {
     onUploadError: () => {
       toast("error occurred while uploading");
@@ -196,7 +198,6 @@ const AboutForm = () => {
         update({ ...values, profileImage: finalImageUrl });
       }
     } catch (error) {
-      console.error(error);
       setIsSaving(false);
       toast("Error uploading file");
     }

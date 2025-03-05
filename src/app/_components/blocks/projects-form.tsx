@@ -64,6 +64,8 @@ import { Separator } from "@/app/_components/ui/separator";
 import { Badge } from "@/app/_components/ui/badge";
 import { IconCheck, IconSelector } from "@tabler/icons-react";
 import ExperienceLoader from "@/app/_components/blocks/experience-loader";
+import { useUploadThing } from "@/utils/uploadthing";
+import { ProjectUploader } from "@/app/_components/blocks/project-uploader";
 
 const projectSchema = z.object({
   title: z.string().min(2, {
@@ -102,6 +104,14 @@ export function ProjectsForm({
   >(null); // Store the ID of the project being edited for Mobile Cards
   const [isCreating, setIsCreating] = useState(false); //for loading state
   const [editId, setEditId] = useState<number>(0);
+  const [files, setFiles] = useState<File[]>([]);
+
+  // Uploadthing Hook
+  const { startUpload } = useUploadThing("imageUploader", {
+    onUploadError: () => {
+      toast("error occurred while uploading");
+    },
+  });
 
   // TRPC Hooks
   const utils = api.useUtils();
@@ -196,20 +206,65 @@ export function ProjectsForm({
     },
   });
 
-  function onSubmit(values: z.infer<typeof projectSchema>) {
+  async function onSubmit(values: z.infer<typeof projectSchema>) {
     try {
       setIsCreating(true);
-      create(values);
+      let finalImageUrl = "";
+      if (files.length > 0) {
+        const uploadResult = await startUpload(files);
+        if (!uploadResult?.[0]?.ufsUrl) {
+          setIsCreating(false);
+          form.setError("imageUrl", {
+            message: "Failed to upload image. Please try again.",
+          });
+          return;
+        }
+        finalImageUrl = uploadResult[0].ufsUrl;
+        setFiles([]); // Reset files state properly
+      } else {
+        // Form has no image
+        setIsCreating(false);
+        form.setError("imageUrl", {
+          message: "Project image is required",
+        });
+        return;
+      }
+
+      create({ ...values, imageUrl: finalImageUrl });
     } catch (error) {
+      setIsCreating(false);
       console.error(error);
     }
   }
 
-  function onEdit(values: z.infer<typeof projectSchema>) {
+  async function onEdit(values: z.infer<typeof projectSchema>) {
     try {
       setIsCreating(true);
-      update({ ...values, id: editId });
+      let finalImageUrl = values.imageUrl;
+      if (files.length > 0) {
+        const uploadResult = await startUpload(files);
+        if (!uploadResult?.[0]?.ufsUrl) {
+          setIsCreating(false);
+          form.setError("imageUrl", {
+            message: "Failed to upload image. Please try again.",
+          });
+          return;
+        }
+        finalImageUrl = uploadResult[0].ufsUrl;
+        setFiles([]); // Reset files state properly
+      }
+
+      // Validate that we have either an existing image or a new upload
+      if (!finalImageUrl && !files.length) {
+        setIsCreating(false);
+        form.setError("imageUrl", {
+          message: "Project image is required",
+        });
+        return;
+      }
+      update({ ...values, id: editId, imageUrl: finalImageUrl });
     } catch (error) {
+      setIsCreating(false);
       console.error(error);
     }
   }
@@ -289,11 +344,11 @@ export function ProjectsForm({
               <FormField
                 control={form.control}
                 name="imageUrl"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
                     <FormLabel>Image</FormLabel>
                     <FormControl>
-                      <Input placeholder="Your project image" {...field} />
+                      <ProjectUploader files={files} onFilesChange={setFiles} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -526,13 +581,14 @@ export function ProjectsForm({
                               <FormField
                                 control={updateForm.control}
                                 name="imageUrl"
-                                render={({ field }) => (
+                                render={() => (
                                   <FormItem>
                                     <FormLabel>Image</FormLabel>
                                     <FormControl>
-                                      <Input
-                                        placeholder="Your project image"
-                                        {...field}
+                                      <ProjectUploader
+                                        files={files}
+                                        onFilesChange={setFiles}
+                                        fetchedImage={project.imageUrl}
                                       />
                                     </FormControl>
                                     <FormMessage />
@@ -808,13 +864,14 @@ export function ProjectsForm({
                             <FormField
                               control={updateForm.control}
                               name="imageUrl"
-                              render={({ field }) => (
+                              render={() => (
                                 <FormItem>
                                   <FormLabel>Image</FormLabel>
                                   <FormControl>
-                                    <Input
-                                      placeholder="Your project image"
-                                      {...field}
+                                    <ProjectUploader
+                                      files={files}
+                                      onFilesChange={setFiles}
+                                      fetchedImage={project.imageUrl}
                                     />
                                   </FormControl>
                                   <FormMessage />
