@@ -40,10 +40,10 @@ import { Switch } from "@/app/_components/ui/switch";
 import { IconEdit, IconTrash, IconBolt } from "@tabler/icons-react";
 import { useState } from "react";
 import { api } from "@/trpc/react";
-import ExperienceLoader from "@/app/_components/blocks/experience-loader";
 import { Card, CardContent } from "@/app/_components/ui/card";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/app/_components/ui/badge";
+import SkillLoader from "@/app/_components/blocks/skill-loader";
 
 const skillsFormSchema = z.object({
   name: z.string().min(1, {
@@ -211,7 +211,7 @@ export function SkillsForm({
       </Dialog>
       <Separator className="my-5" />
       {allSkillsLoading ? (
-        <ExperienceLoader />
+        <SkillLoader />
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {allSkills?.map((skill) => (

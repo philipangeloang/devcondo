@@ -65,7 +65,7 @@ export function ProjectUploader({
                 alt="Profile preview"
                 width={128}
                 height={128}
-                className="h-full w-full object-cover"
+                className="mb-3 h-full w-full object-cover"
               />
             </div>
             <div className="text-muted-foreground text-sm">
@@ -88,7 +88,7 @@ export function ProjectUploader({
                 alt="Current profile image"
                 width={128}
                 height={128}
-                className="h-full w-full object-cover"
+                className="mb-3 h-full w-full"
               />
             </div>
             <div className="text-muted-foreground text-sm">
@@ -106,7 +106,7 @@ export function ProjectUploader({
               <IconPhoto
                 size={72}
                 stroke={1}
-                className="text-muted-foreground"
+                className="text-muted-foreground mb-3"
               />
             </div>
             <div className="text-muted-foreground text-sm">

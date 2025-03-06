@@ -10,6 +10,7 @@ import {
   IconExternalLink,
 } from "@tabler/icons-react";
 import PortfolioLoader from "@/app/_components/blocks/portfolio-loader";
+import Image from "next/image";
 
 interface Skill {
   id: number;
@@ -51,10 +52,16 @@ const Content = () => {
 
   return (
     <>
-      <div className="border-skin-base col-span-12 flex flex-col justify-between rounded-lg border p-8 shadow-md sm:col-span-6 sm:h-[calc(100vh-204px)]">
+      <div className="border-skin-base col-span-12 flex flex-col justify-between rounded-lg border-2 p-8 shadow-md sm:col-span-6 sm:h-[calc(100vh-204px)]">
         <div>
           <div className="flex flex-col gap-3">
-            <div className="bg-skin-fill-accent h-36 w-36 rounded-lg" />
+            <Image
+              src={aboutInfo?.profileImage ?? ""}
+              alt="Profile image"
+              width={144}
+              height={144}
+              className="rounded-full"
+            />
             <h1 className="text-2xl font-semibold">{aboutInfo?.title}</h1>
             <p className="text-skin-muted text-sm">{aboutInfo?.bio}</p>
           </div>
@@ -93,31 +100,56 @@ const Content = () => {
       </div>
 
       <ScrollArea className="col-span-12 sm:col-span-6 sm:h-[calc(100vh-204px)]">
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-6 pr-4">
           {projects?.map((project: Project) => (
             <div
               key={project.id}
-              className="text-skin-base relative flex flex-col gap-4 rounded-lg bg-gray-200 p-6"
+              className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-white to-gray-200 p-6 shadow-md transition-all duration-300 hover:shadow-lg dark:from-gray-900 dark:to-gray-800"
             >
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">{project.title}</h2>
-                <a href={project?.projectUrl ?? ""} target="_blank">
-                  <IconExternalLink className="cursor-pointer" />
-                </a>
+              <div className="relative mb-4">
+                <div className="relative h-48 w-full overflow-hidden rounded-lg">
+                  <Image
+                    src={project.imageUrl}
+                    alt={project.title}
+                    layout="fill"
+                    objectFit="cover"
+                    className="transform transition-transform duration-300 group-hover:scale-105"
+                  />
+                  {project.projectUrl && (
+                    <a
+                      href={project.projectUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="absolute top-2 right-2 rounded-full bg-black/70 p-2 text-white backdrop-blur-sm transition-transform duration-300 hover:scale-110"
+                    >
+                      <IconExternalLink className="h-5 w-5" />
+                    </a>
+                  )}
+                </div>
               </div>
-              <div className="bg-skin-fill-accent h-32 w-full"></div>
-              <p className="text-skin-muted text-sm">{project.description}</p>
 
-              <div className="flex flex-wrap gap-2">
-                {project.skills?.map((p) => (
-                  <Badge
-                    key={p.skill.id}
-                    variant="secondary"
-                    className="text-xs"
-                  >
-                    {p.skill.name}
-                  </Badge>
-                ))}
+              <div className="space-y-4">
+                <div className="flex items-start justify-between">
+                  <h2 className="text-xl font-bold tracking-tight">
+                    {project.title}
+                  </h2>
+                </div>
+
+                <p className="text-muted-foreground line-clamp-3 text-sm">
+                  {project.description}
+                </p>
+
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {project.skills?.map((p) => (
+                    <Badge
+                      key={p.skill.id}
+                      variant="secondary"
+                      className="bg-gray-100 text-xs font-medium text-gray-800 dark:bg-gray-800 dark:text-gray-200"
+                    >
+                      {p.skill.name}
+                    </Badge>
+                  ))}
+                </div>
               </div>
             </div>
           ))}

@@ -3,7 +3,6 @@ import Hamburger from "@/app/_components/blocks/hamburger";
 
 const links = [
   { title: "Home", href: "/admin" },
-  { title: "Projects", href: "/user/projects" },
   { title: "Resume", href: "/user/resume" },
 ];
 

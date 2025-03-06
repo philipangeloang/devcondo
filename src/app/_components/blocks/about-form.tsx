@@ -21,10 +21,10 @@ import * as z from "zod";
 
 import { api } from "@/trpc/react";
 import { useState, useEffect } from "react";
-import ExperienceLoader from "@/app/_components/blocks/experience-loader";
 import ProviderSignout from "../auth/providers-signout";
 import { useUploadThing } from "@/utils/uploadthing";
 import { ProfileUploader } from "@/app/_components/blocks/profile-uploader";
+import AboutLoader from "@/app/_components/blocks/about-loader";
 
 const aboutFormSchema = z.object({
   name: z.string().min(2, {
@@ -229,7 +229,7 @@ const AboutForm = () => {
   return (
     <>
       {isAboutInfoLoading ? (
-        <ExperienceLoader />
+        <AboutLoader />
       ) : (
         <Form {...form}>
           <Toaster />
@@ -293,7 +293,7 @@ const AboutForm = () => {
             <FormField
               control={form.control}
               name="profileImage"
-              render={() => (
+              render={({ field }) => (
                 <FormItem>
                   <FormLabel>Profile Image</FormLabel>
                   <FormControl>
@@ -301,7 +301,7 @@ const AboutForm = () => {
                       files={files}
                       onFilesChange={setFiles}
                       disabled={!isEditing}
-                      fetchedImage={aboutInfo?.profileImage ?? ""}
+                      fetchedImage={field.value}
                     />
                   </FormControl>
                   <FormMessage />

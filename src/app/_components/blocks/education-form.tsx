@@ -315,10 +315,11 @@ export function EducationForm({
                 >
                   <DialogTrigger asChild>
                     <Button
-                      className="cursor-pointer bg-black text-white dark:bg-white dark:text-black"
                       size="icon"
+                      variant="outline"
+                      className="h-8 w-8 bg-transparent p-0 opacity-70 hover:opacity-100"
                     >
-                      <IconEdit />
+                      <IconEdit className="h-4 w-4" />
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
@@ -405,10 +406,11 @@ export function EducationForm({
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button
-                      className="cursor-pointer bg-red-500 text-white dark:bg-red-500"
                       size="icon"
+                      variant="outline"
+                      className="h-8 w-8 bg-transparent p-0 text-red-500 opacity-70 hover:bg-red-50 hover:opacity-100 dark:hover:bg-red-950"
                     >
-                      <IconTrash />
+                      <IconTrash className="h-4 w-4" />
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>

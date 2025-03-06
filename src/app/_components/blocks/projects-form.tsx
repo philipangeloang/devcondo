@@ -63,9 +63,9 @@ import {
 import { Separator } from "@/app/_components/ui/separator";
 import { Badge } from "@/app/_components/ui/badge";
 import { IconCheck, IconSelector } from "@tabler/icons-react";
-import ExperienceLoader from "@/app/_components/blocks/experience-loader";
 import { useUploadThing } from "@/utils/uploadthing";
 import { ProjectUploader } from "@/app/_components/blocks/project-uploader";
+import ProjectLoader from "@/app/_components/blocks/project-loader";
 
 const projectSchema = z.object({
   title: z.string().min(2, {
@@ -74,9 +74,12 @@ const projectSchema = z.object({
   description: z.string().min(10, {
     message: "Description must be at least 10 characters.",
   }),
-  imageUrl: z.string().url({
-    message: "Please enter a valid URL.",
-  }),
+  imageUrl: z
+    .string()
+    .url({
+      message: "Please enter a valid URL.",
+    })
+    .or(z.literal("")),
   projectUrl: z
     .string()
     .url({
@@ -375,7 +378,7 @@ export function ProjectsForm({
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-full p-0">
-                          <Command>
+                          <Command onWheel={(e) => e.stopPropagation()}>
                             <CommandInput placeholder="Search framework..." />
                             <CommandList>
                               <CommandEmpty>No framework found.</CommandEmpty>
@@ -484,296 +487,325 @@ export function ProjectsForm({
       </Dialog>
       <Separator className="my-5" />
       {isLoadingProjectWithSkills || isFetchingProjectwithSkills ? (
-        <ExperienceLoader />
+        <ProjectLoader />
       ) : (
         <>
           {/* Bigger Screen Size Table */}
           <Table className="hidden md:table">
             <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Technologies</TableHead>
-                <TableHead>Actions</TableHead>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="w-[200px] py-4">Title</TableHead>
+                <TableHead className="max-w-[400px] py-4">
+                  Description
+                </TableHead>
+                <TableHead className="w-[250px] py-4">Technologies</TableHead>
+                <TableHead className="w-[100px] py-4 text-center">
+                  Actions
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {allProjectWithSkills?.map((project) => (
-                <TableRow key={project.id}>
-                  <TableCell>{project.title}</TableCell>
-                  <TableCell>{project.description}</TableCell>
-                  <TableCell>
-                    {project.skills?.map((p) => p.skill.name).join(", ")}
+                <TableRow key={project.id} className="group">
+                  <TableCell className="py-4 font-medium">
+                    {project.title}
                   </TableCell>
-                  <TableCell className="flex gap-2">
-                    {/* Edit Dialog */}
-                    <Dialog
-                      open={editDialogOpen === project.id}
-                      onOpenChange={(open) => {
-                        if (!open) {
-                          if (!isCreating) {
-                            setEditDialogOpen(null);
-                            updateForm.reset();
-                          }
-                        } else {
-                          setEditDialogOpen(project.id);
-                          setEditId(project.id);
-                        }
-                      }}
-                    >
-                      <DialogTrigger asChild>
-                        <Button
-                          size="icon"
-                          className="cursor-pointer bg-black text-white dark:bg-white dark:text-black"
+                  <TableCell className="max-w-[400px] py-4">
+                    <p className="text-muted-foreground line-clamp-2">
+                      {project.description}
+                    </p>
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <div className="flex flex-wrap gap-1">
+                      {project.skills?.map((p) => (
+                        <Badge
+                          key={p.skill.id}
+                          variant="secondary"
+                          className="bg-gray-100 text-xs font-medium text-gray-800 dark:bg-gray-800 dark:text-gray-200"
                         >
-                          <IconEdit />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                          <DialogTitle>Edit Project</DialogTitle>
-                          <DialogDescription>
-                            Edit project here. Click save when you&apos;re done.
-                          </DialogDescription>
-                        </DialogHeader>
-                        {isLoadingProjectRelativeSkills ||
-                        isFetchingProjectRelativeSkills ? (
-                          <IconLoader size={24} className="animate-spin" />
-                        ) : (
-                          <Form {...updateForm}>
-                            <form
-                              onSubmit={updateForm.handleSubmit(onEdit)}
-                              className="space-y-4"
-                            >
-                              <FormField
-                                control={updateForm.control}
-                                name="title"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Title</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Your project title"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={updateForm.control}
-                                name="description"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Description</FormLabel>
-                                    <FormControl>
-                                      <Textarea
-                                        placeholder="Your project description"
-                                        className="resize-none"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={updateForm.control}
-                                name="imageUrl"
-                                render={() => (
-                                  <FormItem>
-                                    <FormLabel>Image</FormLabel>
-                                    <FormControl>
-                                      <ProjectUploader
-                                        files={files}
-                                        onFilesChange={setFiles}
-                                        fetchedImage={project.imageUrl}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <FormField
-                                control={updateForm.control}
-                                name="skillIds"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Technologies Used</FormLabel>
-                                    <FormControl>
-                                      <Popover>
-                                        <PopoverTrigger asChild>
-                                          <Button
-                                            variant="outline"
-                                            role="combobox"
-                                            className="w-full justify-between"
-                                          >
-                                            {field.value?.length > 0
-                                              ? `${field.value.length} selected`
-                                              : "Select frameworks..."}
-                                            <IconSelector className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                          </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-full p-0">
-                                          <Command>
-                                            <CommandInput placeholder="Search framework..." />
-                                            <CommandList>
-                                              <CommandEmpty>
-                                                No framework found.
-                                              </CommandEmpty>
-                                              <CommandGroup>
-                                                {allSkills?.map((framework) => {
-                                                  const isSelected =
-                                                    field.value.includes(
-                                                      framework.id,
-                                                    );
-                                                  const isInactiveAndNotSelected =
-                                                    !framework.isActive &&
-                                                    !isSelected;
-
-                                                  return (
-                                                    <CommandItem
-                                                      key={framework.id}
-                                                      onSelect={() => {
-                                                        // If it's inactive and not already selected, prevent selection
-                                                        if (
-                                                          isInactiveAndNotSelected
-                                                        )
-                                                          return;
-
-                                                        field.onChange(
-                                                          field.value.includes(
-                                                            framework.id,
-                                                          )
-                                                            ? field.value.filter(
-                                                                (id) =>
-                                                                  id !==
-                                                                  framework.id,
-                                                              )
-                                                            : [
-                                                                ...field.value,
-                                                                framework.id,
-                                                              ],
+                          {p.skill.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell className="py-4">
+                    <div className="flex justify-center gap-2">
+                      {/* Edit Dialog */}
+                      <Dialog
+                        open={editDialogOpen === project.id}
+                        onOpenChange={(open) => {
+                          if (!open) {
+                            if (!isCreating) {
+                              setEditDialogOpen(null);
+                              updateForm.reset();
+                            }
+                          } else {
+                            setEditDialogOpen(project.id);
+                            setEditId(project.id);
+                          }
+                        }}
+                      >
+                        <DialogTrigger asChild>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-8 w-8 bg-transparent p-0 opacity-70 hover:opacity-100"
+                          >
+                            <IconEdit className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Edit Project</DialogTitle>
+                            <DialogDescription>
+                              Edit project here. Click save when you&apos;re
+                              done.
+                            </DialogDescription>
+                          </DialogHeader>
+                          {isLoadingProjectRelativeSkills ||
+                          isFetchingProjectRelativeSkills ? (
+                            <IconLoader size={24} className="animate-spin" />
+                          ) : (
+                            <Form {...updateForm}>
+                              <form
+                                onSubmit={updateForm.handleSubmit(onEdit)}
+                                className="space-y-4"
+                              >
+                                <FormField
+                                  control={updateForm.control}
+                                  name="title"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Title</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="Your project title"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={updateForm.control}
+                                  name="description"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Description</FormLabel>
+                                      <FormControl>
+                                        <Textarea
+                                          placeholder="Your project description"
+                                          className="resize-none"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={updateForm.control}
+                                  name="imageUrl"
+                                  render={() => (
+                                    <FormItem>
+                                      <FormLabel>Image</FormLabel>
+                                      <FormControl>
+                                        <ProjectUploader
+                                          files={files}
+                                          onFilesChange={setFiles}
+                                          fetchedImage={project.imageUrl}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={updateForm.control}
+                                  name="skillIds"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Technologies Used</FormLabel>
+                                      <FormControl>
+                                        <Popover>
+                                          <PopoverTrigger asChild>
+                                            <Button
+                                              variant="outline"
+                                              role="combobox"
+                                              className="w-full justify-between"
+                                            >
+                                              {field.value?.length > 0
+                                                ? `${field.value.length} selected`
+                                                : "Select frameworks..."}
+                                              <IconSelector className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                            </Button>
+                                          </PopoverTrigger>
+                                          <PopoverContent className="w-full p-0">
+                                            <Command
+                                              onWheel={(e) =>
+                                                e.stopPropagation()
+                                              }
+                                            >
+                                              <CommandInput placeholder="Search framework..." />
+                                              <CommandList>
+                                                <CommandEmpty>
+                                                  No framework found.
+                                                </CommandEmpty>
+                                                <CommandGroup>
+                                                  {allSkills?.map(
+                                                    (framework) => {
+                                                      const isSelected =
+                                                        field.value.includes(
+                                                          framework.id,
                                                         );
-                                                      }}
-                                                      className={cn(
-                                                        "flex items-center justify-between",
-                                                        isInactiveAndNotSelected &&
-                                                          "cursor-not-allowed opacity-50",
-                                                      )}
-                                                    >
-                                                      <div className="flex items-center">
-                                                        <IconCheck
+                                                      const isInactiveAndNotSelected =
+                                                        !framework.isActive &&
+                                                        !isSelected;
+
+                                                      return (
+                                                        <CommandItem
+                                                          key={framework.id}
+                                                          onSelect={() => {
+                                                            // If it's inactive and not already selected, prevent selection
+                                                            if (
+                                                              isInactiveAndNotSelected
+                                                            )
+                                                              return;
+
+                                                            field.onChange(
+                                                              field.value.includes(
+                                                                framework.id,
+                                                              )
+                                                                ? field.value.filter(
+                                                                    (id) =>
+                                                                      id !==
+                                                                      framework.id,
+                                                                  )
+                                                                : [
+                                                                    ...field.value,
+                                                                    framework.id,
+                                                                  ],
+                                                            );
+                                                          }}
                                                           className={cn(
-                                                            "mr-2 h-4 w-4",
-                                                            isSelected
-                                                              ? "opacity-100"
-                                                              : "opacity-0",
-                                                          )}
-                                                        />
-                                                        <span
-                                                          className={cn(
+                                                            "flex items-center justify-between",
                                                             isInactiveAndNotSelected &&
-                                                              "text-muted-foreground",
+                                                              "cursor-not-allowed opacity-50",
                                                           )}
                                                         >
-                                                          {framework.name}
-                                                        </span>
-                                                      </div>
-                                                      <div className="flex items-center gap-2">
-                                                        {!framework.isActive && (
-                                                          <Badge
-                                                            variant="outline"
-                                                            className={cn(
-                                                              "ml-2 text-xs",
-                                                              isSelected &&
-                                                                "bg-yellow-100 dark:bg-yellow-900/30",
+                                                          <div className="flex items-center">
+                                                            <IconCheck
+                                                              className={cn(
+                                                                "mr-2 h-4 w-4",
+                                                                isSelected
+                                                                  ? "opacity-100"
+                                                                  : "opacity-0",
+                                                              )}
+                                                            />
+                                                            <span
+                                                              className={cn(
+                                                                isInactiveAndNotSelected &&
+                                                                  "text-muted-foreground",
+                                                              )}
+                                                            >
+                                                              {framework.name}
+                                                            </span>
+                                                          </div>
+                                                          <div className="flex items-center gap-2">
+                                                            {!framework.isActive && (
+                                                              <Badge
+                                                                variant="outline"
+                                                                className={cn(
+                                                                  "ml-2 text-xs",
+                                                                  isSelected &&
+                                                                    "bg-yellow-100 dark:bg-yellow-900/30",
+                                                                )}
+                                                              >
+                                                                {isSelected
+                                                                  ? "Removable"
+                                                                  : "Inactive"}
+                                                              </Badge>
                                                             )}
-                                                          >
-                                                            {isSelected
-                                                              ? "Removable"
-                                                              : "Inactive"}
-                                                          </Badge>
-                                                        )}
-                                                      </div>
-                                                    </CommandItem>
-                                                  );
-                                                })}
-                                              </CommandGroup>
-                                            </CommandList>
-                                          </Command>
-                                        </PopoverContent>
-                                      </Popover>
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
+                                                          </div>
+                                                        </CommandItem>
+                                                      );
+                                                    },
+                                                  )}
+                                                </CommandGroup>
+                                              </CommandList>
+                                            </Command>
+                                          </PopoverContent>
+                                        </Popover>
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
 
-                              <FormField
-                                control={updateForm.control}
-                                name="projectUrl"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Project URL</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        placeholder="Your project URL"
-                                        {...field}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                              <div>
-                                <Button
-                                  type="submit"
-                                  disabled={isCreating}
-                                  className="cursor-pointer bg-black text-white dark:bg-white dark:text-black"
-                                >
-                                  {isCreating ? "Saving..." : "Save Project"}
-                                </Button>
-                              </div>
-                            </form>
-                          </Form>
-                        )}
-                      </DialogContent>
-                    </Dialog>
+                                <FormField
+                                  control={updateForm.control}
+                                  name="projectUrl"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Project URL</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          placeholder="Your project URL"
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <div>
+                                  <Button
+                                    type="submit"
+                                    disabled={isCreating}
+                                    className="cursor-pointer bg-black text-white dark:bg-white dark:text-black"
+                                  >
+                                    {isCreating ? "Saving..." : "Save Project"}
+                                  </Button>
+                                </div>
+                              </form>
+                            </Form>
+                          )}
+                        </DialogContent>
+                      </Dialog>
 
-                    {/* Delete Alert Dialog */}
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          className="cursor-pointer bg-red-500 text-white dark:bg-red-500"
-                        >
-                          <IconTrash />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>
-                            Are you absolutely sure?
-                          </AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This action cannot be undone. This will permanently
-                            delete your project.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            className="cursor-pointer bg-red-500 text-white dark:bg-red-500"
-                            onClick={() => deleteProject(project.id)}
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-8 w-8 bg-transparent p-0 text-red-500 opacity-70 hover:bg-red-50 hover:opacity-100 dark:hover:bg-red-950"
                           >
-                            Continue
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                            <IconTrash className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Are you absolutely sure?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will
+                              permanently delete your project.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              className="cursor-pointer bg-red-500 text-white dark:bg-red-500"
+                              onClick={() => deleteProject(project.id)}
+                            >
+                              Continue
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -899,7 +931,9 @@ export function ProjectsForm({
                                         </Button>
                                       </PopoverTrigger>
                                       <PopoverContent className="w-full p-0">
-                                        <Command>
+                                        <Command
+                                          onWheel={(e) => e.stopPropagation()}
+                                        >
                                           <CommandInput placeholder="Search framework..." />
                                           <CommandList>
                                             <CommandEmpty>

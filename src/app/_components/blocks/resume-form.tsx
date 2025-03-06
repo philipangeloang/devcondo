@@ -30,7 +30,7 @@ import {
 import { ExperiencesForm } from "./experiences-form";
 import { EducationForm } from "./education-form";
 import { CertificationsForm } from "./certifications-form";
-import ExperienceLoader from "@/app/_components/blocks/experience-loader";
+import ResumeLoader from "@/app/_components/blocks/resume-loader";
 
 const resumeFormSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
@@ -122,18 +122,18 @@ export function ResumeForm() {
     <>
       <Toaster />
       {isResumeLoading ? (
-        <ExperienceLoader />
+        <ResumeLoader />
       ) : (
         <Tabs
           defaultValue="basic"
           className="flex w-full"
           orientation="vertical"
         >
-          <div className="w-64 shrink-0 rounded-lg bg-zinc-50 p-6 dark:bg-zinc-900/50">
+          <div className="w-64 shrink-0 rounded-lg bg-gray-100 p-6 dark:bg-gray-800">
             <TabsList className="flex h-auto flex-col space-y-2">
               <TabsTrigger
                 value="basic"
-                className="w-full cursor-pointer justify-start rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 data-[state=active]:bg-zinc-200 data-[state=active]:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 dark:data-[state=active]:bg-zinc-800 dark:data-[state=active]:text-zinc-100"
+                className="w-full cursor-pointer justify-start rounded-lg px-3 py-2 text-sm font-medium text-gray-800 transition-colors hover:bg-gray-100 hover:text-gray-900 data-[state=active]:bg-gray-900 data-[state=active]:text-gray-50 dark:text-gray-200 dark:hover:bg-gray-800 dark:hover:text-gray-100 dark:data-[state=active]:bg-gray-50 dark:data-[state=active]:text-gray-900"
               >
                 <svg
                   className="mr-2 h-4 w-4"
@@ -152,7 +152,7 @@ export function ResumeForm() {
               </TabsTrigger>
               <TabsTrigger
                 value="experience"
-                className="w-full cursor-pointer justify-start rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 data-[state=active]:bg-zinc-200 data-[state=active]:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 dark:data-[state=active]:bg-zinc-800 dark:data-[state=active]:text-zinc-100"
+                className="w-full cursor-pointer justify-start rounded-lg px-3 py-2 text-sm font-medium text-gray-800 transition-colors hover:bg-gray-100 hover:text-gray-900 data-[state=active]:bg-gray-900 data-[state=active]:text-gray-50 dark:text-gray-200 dark:hover:bg-gray-800 dark:hover:text-gray-100 dark:data-[state=active]:bg-gray-50 dark:data-[state=active]:text-gray-900"
               >
                 <svg
                   className="mr-2 h-4 w-4"
@@ -171,7 +171,7 @@ export function ResumeForm() {
               </TabsTrigger>
               <TabsTrigger
                 value="education"
-                className="w-full cursor-pointer justify-start rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 data-[state=active]:bg-zinc-200 data-[state=active]:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 dark:data-[state=active]:bg-zinc-800 dark:data-[state=active]:text-zinc-100"
+                className="w-full cursor-pointer justify-start rounded-lg px-3 py-2 text-sm font-medium text-gray-800 transition-colors hover:bg-gray-100 hover:text-gray-900 data-[state=active]:bg-gray-900 data-[state=active]:text-gray-50 dark:text-gray-200 dark:hover:bg-gray-800 dark:hover:text-gray-100 dark:data-[state=active]:bg-gray-50 dark:data-[state=active]:text-gray-900"
               >
                 <svg
                   className="mr-2 h-4 w-4"
@@ -190,7 +190,7 @@ export function ResumeForm() {
               </TabsTrigger>
               <TabsTrigger
                 value="certifications"
-                className="w-full cursor-pointer justify-start rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 data-[state=active]:bg-zinc-200 data-[state=active]:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 dark:data-[state=active]:bg-zinc-800 dark:data-[state=active]:text-zinc-100"
+                className="w-full cursor-pointer justify-start rounded-lg px-3 py-2 text-sm font-medium text-gray-800 transition-colors hover:bg-gray-100 hover:text-gray-900 data-[state=active]:bg-gray-900 data-[state=active]:text-gray-50 dark:text-gray-200 dark:hover:bg-gray-800 dark:hover:text-gray-100 dark:data-[state=active]:bg-gray-50 dark:data-[state=active]:text-gray-900"
               >
                 <svg
                   className="mr-2 h-4 w-4"

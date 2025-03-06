@@ -1,75 +1,101 @@
-import { Button } from "@/app/_components/ui/button";
+"use client";
 import { Badge } from "@/app/_components/ui/badge";
-import { Card, CardContent } from "@/app/_components/ui/card";
 import { ScrollArea } from "@/app/_components/ui/scroll-area";
-import {
-  Briefcase,
-  GraduationCap,
-  Laptop,
-  Mail,
-  MapPin,
-  Phone,
-} from "lucide-react";
+import { Briefcase, GraduationCap, Mail, MapPin, Phone } from "lucide-react";
+import { api } from "@/trpc/react";
+import ExperienceLoader from "@/app/_components/blocks/experience-loader";
+import { Separator } from "@/app/_components/ui/separator";
 
 const Content = () => {
+  const { data: resumeInfo, isLoading: resumeLoading } =
+    api.resume.get.useQuery();
+  const { data: experiences, isLoading: experiencesLoading } =
+    api.experiences.getByResumeId.useQuery(resumeInfo?.id ?? 0, {
+      enabled: !!resumeInfo?.id,
+    });
+  const { data: education, isLoading: educationLoading } =
+    api.education.getByResumeId.useQuery(resumeInfo?.id ?? 0, {
+      enabled: !!resumeInfo?.id,
+    });
+  const { data: certifications, isLoading: certificationsLoading } =
+    api.certifications.getByResumeId.useQuery(resumeInfo?.id ?? 0, {
+      enabled: !!resumeInfo?.id,
+    });
+  const { data: activeSkills, isLoading: skillsLoading } =
+    api.skill.getActive.useQuery();
+
+  if (
+    resumeLoading ||
+    experiencesLoading ||
+    educationLoading ||
+    certificationsLoading ||
+    skillsLoading
+  ) {
+    return <ExperienceLoader />;
+  }
+
   return (
     <>
-      <ScrollArea className="col-span-12 rounded-lg bg-white p-8 sm:h-[calc(100vh-204px)] [&_*]:!text-black">
-        <div className="mx-auto max-w-4xl space-y-8">
+      <ScrollArea className="col-span-12 h-[calc(100vh-204px)] rounded-lg border border-gray-200 bg-white shadow-lg">
+        <div className="mx-auto max-w-4xl space-y-8 py-10">
           {/* Header Section */}
-          <div className="space-y-4">
-            <h1 className="text-4xl font-bold">John Developer</h1>
-            <h2 className="text-2xl text-gray-600">Senior Frontend Engineer</h2>
-            <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4" />
-                San Francisco, CA
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4" />
-                john@developer.com
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4" />
-                (555) 123-4567
+          <div className="relative border-b pb-8">
+            <div className="space-y-3">
+              <h1 className="text-4xl font-bold tracking-tight text-black">
+                {resumeInfo?.fullName}
+              </h1>
+              <h2 className="text-2xl font-medium text-gray-700">
+                {resumeInfo?.title}
+              </h2>
+              <div className="flex flex-wrap gap-6 text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  <div className="rounded-full bg-gray-100 p-1.5">
+                    <MapPin className="h-4 w-4" />
+                  </div>
+                  {resumeInfo?.location}
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="rounded-full bg-gray-100 p-1.5">
+                    <Mail className="h-4 w-4" />
+                  </div>
+                  {resumeInfo?.email}
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="rounded-full bg-gray-100 p-1.5">
+                    <Phone className="h-4 w-4" />
+                  </div>
+                  {resumeInfo?.phone}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Summary Section */}
-          <section className="space-y-4">
-            <h3 className="text-xl font-semibold">Professional Summary</h3>
-            <p className="text-gray-600">
-              Passionate frontend engineer with 8+ years of experience building
-              responsive and performant web applications. Specialized in React,
-              Next.js, and modern web technologies. Strong focus on user
-              experience and accessibility.
-            </p>
+          <section className="space-y-3">
+            <div className="flex items-center gap-3">
+              <h3 className="text-lg font-semibold tracking-wider text-black uppercase">
+                Professional Summary
+              </h3>
+              <Separator className="flex-1 bg-gray-200 dark:bg-gray-200" />
+            </div>
+            <p className="text-gray-600">{resumeInfo?.summary}</p>
           </section>
 
           {/* Skills Section */}
-          <section className="space-y-4">
-            <h3 className="text-xl font-semibold">Technical Skills</h3>
+          <section className="space-y-3">
+            <div className="flex items-center gap-3">
+              <h3 className="text-lg font-semibold tracking-wider text-black uppercase">
+                Technical Skills
+              </h3>
+              <Separator className="flex-1 bg-gray-200 dark:bg-gray-200" />
+            </div>
             <div className="flex flex-wrap gap-2">
-              {[
-                "React",
-                "Next.js",
-                "TypeScript",
-                "Tailwind CSS",
-                "Node.js",
-                "GraphQL",
-                "REST APIs",
-                "Git",
-                "AWS",
-                "Jest",
-                "Cypress",
-                "CI/CD",
-              ].map((skill) => (
+              {activeSkills?.map((skill) => (
                 <Badge
-                  key={skill}
-                  className="bg-gray-100 text-gray-900 hover:bg-gray-200 dark:border-transparent dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200"
+                  key={skill.id}
+                  className="border bg-gradient-to-b from-gray-50 to-gray-100 text-gray-700 shadow-sm transition-all hover:from-gray-100 hover:to-gray-200 dark:border dark:border-gray-100/0"
                 >
-                  {skill}
+                  {skill.name}
                 </Badge>
               ))}
             </div>
@@ -77,103 +103,107 @@ const Content = () => {
 
           {/* Experience Section */}
           <section className="space-y-6">
-            <h3 className="text-xl font-semibold">Experience</h3>
-            <Card className="border-gray-200 bg-white dark:border-gray-200 dark:bg-white">
-              <CardContent className="p-6 [&_*]:!text-black dark:[&_*]:!text-black">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <Briefcase className="h-4 w-4 text-blue-600" />
-                      <h4 className="font-semibold">
-                        Senior Frontend Engineer
-                      </h4>
+            <div className="flex items-center gap-3">
+              <h3 className="text-lg font-semibold tracking-wider text-black uppercase">
+                Experience
+              </h3>
+              <Separator className="flex-1 bg-gray-200 dark:bg-gray-200" />
+            </div>
+            <div className="space-y-6">
+              {experiences?.map((experience) => (
+                <div
+                  key={experience.id}
+                  className="relative space-y-3 rounded-lg border border-gray-200 bg-gradient-to-b from-white to-gray-50 p-6 shadow-sm"
+                >
+                  <div className="flex items-start justify-between border-b border-gray-100 pb-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-black">
+                          {experience.title}
+                        </h4>
+                      </div>
+                      <p className="text-sm font-medium text-gray-600">
+                        {experience.company}
+                      </p>
                     </div>
-                    <p className="text-sm text-gray-600">TechCorp Inc.</p>
+                    <p className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600">
+                      {new Date(experience.startDate).getFullYear()} -{" "}
+                      {experience.endDate
+                        ? new Date(experience.endDate).getFullYear()
+                        : "Present"}
+                    </p>
                   </div>
-                  <p className="text-sm text-gray-600">2020 - Present</p>
+                  <ul className="list-disc space-y-2 pl-6">
+                    {experience.description.split(";").map((bullet, index) => (
+                      <li key={index} className="text-sm text-gray-600">
+                        {bullet.trim()}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-gray-600">
-                  <li>
-                    Led the frontend development of the company&apos;s flagship
-                    SaaS product
-                  </li>
-                  <li>
-                    Improved application performance by 40% through code
-                    optimization
-                  </li>
-                  <li>Mentored junior developers and conducted code reviews</li>
-                  <li>
-                    Implemented automated testing strategy reducing bugs by 60%
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-            <Card className="border-gray-200 bg-white dark:border-gray-200 dark:bg-white">
-              <CardContent className="p-6 [&_*]:!text-black dark:[&_*]:!text-black">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <Laptop className="h-4 w-4 text-blue-600" />
-                      <h4 className="font-semibold">Frontend Developer</h4>
-                    </div>
-                    <p className="text-sm text-gray-600">StartupX</p>
-                  </div>
-                  <p className="text-sm text-gray-600">2018 - 2020</p>
-                </div>
-                <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-gray-600">
-                  <li>
-                    Developed and maintained multiple client-facing applications
-                  </li>
-                  <li>
-                    Collaborated with designers to implement pixel-perfect UIs
-                  </li>
-                  <li>Integrated third-party APIs and services</li>
-                </ul>
-              </CardContent>
-            </Card>
+              ))}
+            </div>
           </section>
 
           {/* Education Section */}
           <section className="space-y-6">
-            <h3 className="text-xl font-semibold">Education</h3>
-            <Card className="border-gray-200 bg-white dark:border-gray-200 dark:bg-white">
-              <CardContent className="p-6 [&_*]:!text-black dark:[&_*]:!text-black">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <GraduationCap className="h-4 w-4 text-blue-600" />
-                      <h4 className="font-semibold">B.S. Computer Science</h4>
+            <div className="flex items-center gap-3">
+              <h3 className="text-lg font-semibold tracking-wider text-black uppercase">
+                Education
+              </h3>
+              <Separator className="flex-1 bg-gray-200 dark:bg-gray-200" />
+            </div>
+            <div className="space-y-6">
+              {education?.map((edu) => (
+                <div
+                  key={edu.id}
+                  className="relative space-y-3 rounded-lg border border-gray-200 bg-gradient-to-b from-white to-gray-50 p-6 shadow-sm"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-black">
+                          {edu.degree}
+                        </h4>
+                      </div>
+                      <p className="text-sm font-medium text-gray-600">
+                        {edu.university}
+                      </p>
                     </div>
-                    <p className="text-sm text-gray-600">
-                      University of Technology
+                    <p className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600">
+                      {new Date(edu.startDate).getFullYear()} -{" "}
+                      {edu.endDate
+                        ? new Date(edu.endDate).getFullYear()
+                        : "Present"}
                     </p>
                   </div>
-                  <p className="text-sm text-gray-600">2014 - 2018</p>
                 </div>
-                <p className="mt-4 text-sm text-gray-600">
-                  Relevant coursework: Web Development, Algorithms, Data
-                  Structures, Software Engineering
-                </p>
-              </CardContent>
-            </Card>
+              ))}
+            </div>
           </section>
 
           {/* Certifications Section */}
-          <section className="space-y-4">
-            <h3 className="text-xl font-semibold">Certifications</h3>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Badge className="bg-gray-100 text-gray-900 hover:bg-gray-200 dark:border-transparent dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200">
-                  AWS Certified Developer
-                </Badge>
-                <span className="text-sm text-gray-600">2023</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge className="bg-gray-100 text-gray-900 hover:bg-gray-200 dark:border-transparent dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200">
-                  Google Cloud Professional Developer
-                </Badge>
-                <span className="text-sm text-gray-600">2022</span>
-              </div>
+          <section className="space-y-3">
+            <div className="flex items-center gap-3">
+              <h3 className="text-lg font-semibold tracking-wider text-black uppercase">
+                Certifications
+              </h3>
+              <Separator className="flex-1 bg-gray-200 dark:bg-gray-200" />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {certifications?.map((cert) => (
+                <div
+                  key={cert.id}
+                  className="flex items-center justify-between rounded-lg border border-gray-200 bg-gradient-to-b from-white to-gray-50 p-4 shadow-sm"
+                >
+                  <span className="font-medium text-gray-700">
+                    {cert.title}
+                  </span>
+                  <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600">
+                    {new Date(cert.yearAwarded).getFullYear()}
+                  </span>
+                </div>
+              ))}
             </div>
           </section>
         </div>
