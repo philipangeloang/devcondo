@@ -23,6 +23,7 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
+      username: string;
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];
@@ -73,13 +74,19 @@ export const authConfig = {
     verificationTokensTable: verificationTokens,
   }),
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-        // Add other properties her
-      },
-    }),
+    session: async ({ session, user }) => {
+      const userData = await db.query.users.findFirst({
+        where: (users, { eq }) => eq(users.id, user.id),
+      });
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: user.id,
+          username: userData?.username,
+          // Add other properties here
+        },
+      };
+    },
   },
 } satisfies NextAuthConfig;

@@ -50,6 +50,7 @@ export const users = createTable("user", {
     .$defaultFn(() => crypto.randomUUID()),
   customerId: varchar("customer_id", { length: 255 }),
   name: varchar("name", { length: 255 }),
+  username: varchar("username", { length: 256 }).unique(),
   email: varchar("email", { length: 255 }).notNull(),
   emailVerified: timestamp("email_verified", {
     mode: "date",

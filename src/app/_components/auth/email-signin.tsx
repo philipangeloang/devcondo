@@ -59,7 +59,7 @@ const EmailSignin = () => {
         <Button
           variant="outline"
           type="submit"
-          className="hover:bg-main-violet flex h-12 w-full gap-3 border border-black/10"
+          className="hover:bg-main-violet flex h-12 w-full cursor-pointer gap-3 border border-black/10"
         >
           <IconMailFilled size={20} color="black" />
           <span className="text-black">Continue with Email</span>

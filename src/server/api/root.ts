@@ -7,13 +7,14 @@ import { resumeRouter } from "./routers/resume";
 import { experiencesRouter } from "./routers/experiences";
 import { educationRouter } from "./routers/education";
 import { certificationsRouter } from "./routers/certifications";
-
+import { usersRouter } from "./routers/users";
 /**
  * This is the primary router for your server.
  *
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
+  users: usersRouter,
   aboutInfo: aboutInfoRouter,
   project: projectsRouter,
   skill: skillsRouter,

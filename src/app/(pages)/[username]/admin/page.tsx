@@ -2,23 +2,32 @@ import ProviderSignout from "@/app/_components/auth/providers-signout";
 import { auth } from "@/server/auth";
 import Checkout from "@/app/_components/checkout";
 
-import { api, HydrateClient } from "@/trpc/server";
-import { Button } from "@/app/_components/ui/button";
+import { HydrateClient } from "@/trpc/server";
+
 import Header from "@/app/_page-sections/admin/header";
 import Content from "@/app/_page-sections/admin/content";
 import Footer from "@/app/_page-sections/admin/footer";
+import { redirect } from "next/navigation";
 
-// https://dribbble.com/shots/21326778-Portfolio-Site
+const Admin = async ({ params }: { params: { username: string } }) => {
+  const session = await auth();
 
-const Admin = async () => {
-  // const session = await auth();
+  if (!session) {
+    redirect("/");
+  }
+
+  if (session.user.username !== params.username) {
+    redirect(`/${session.user.username}/admin`);
+  }
 
   return (
-    <main className="mx-auto grid w-full max-w-5xl grid-cols-12 gap-4 p-4">
-      <Header />
-      <Content />
-      <Footer />
-    </main>
+    <HydrateClient>
+      <main className="mx-auto grid w-full max-w-5xl grid-cols-12 gap-4 p-4">
+        <Header />
+        <Content />
+        <Footer />
+      </main>
+    </HydrateClient>
   );
   // return (
   //   <div>

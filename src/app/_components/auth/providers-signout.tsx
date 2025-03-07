@@ -8,7 +8,7 @@ const ProviderSignout = () => {
       onClick={async () => {
         await signOut({ callbackUrl: "/" });
       }}
-      className=""
+      className="cursor-pointer"
     >
       Log out
     </Button>

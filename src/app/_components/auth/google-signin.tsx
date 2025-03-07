@@ -10,7 +10,7 @@ const GoogleSignin = () => {
       onClick={async () => {
         await signIn("google", { callbackUrl: "/admin" });
       }}
-      className="hover:bg-main-violet flex h-12 w-full gap-3 bg-[#E74133]"
+      className="hover:bg-main-violet flex h-12 w-full cursor-pointer gap-3 bg-[#E74133]"
     >
       <IconBrandGoogleFilled size={20} />
       <span>Continue with Google</span>

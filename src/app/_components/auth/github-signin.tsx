@@ -8,9 +8,9 @@ const GithubSignin = () => {
   return (
     <Button
       onClick={async () => {
-        await signIn("github", { callbackUrl: "/admin" });
+        await signIn("github", { callbackUrl: "/auth-callback" });
       }}
-      className="hover:bg-main-violet flex h-12 w-full gap-3 bg-black"
+      className="hover:bg-main-violet flex h-12 w-full cursor-pointer gap-3 bg-black"
     >
       <IconBrandGithubFilled size={20} />
       <span>Continue with Github</span>

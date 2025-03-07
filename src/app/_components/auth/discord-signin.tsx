@@ -10,7 +10,7 @@ const DiscordSignin = () => {
       onClick={async () => {
         await signIn("discord", { callbackUrl: "/admin" });
       }}
-      className="hover:bg-main-violet flex h-12 w-full gap-3 bg-[#5869E9]"
+      className="hover:bg-main-violet flex h-12 w-full cursor-pointer gap-3 bg-[#5869E9]"
     >
       <IconBrandDiscordFilled size={20} />
       <span>Continue with Discord</span>
