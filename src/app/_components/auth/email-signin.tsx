@@ -37,7 +37,7 @@ const EmailSignin = () => {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values.email);
     const email = values.email;
-    await signIn("email", { email, callbackUrl: "/admin" });
+    await signIn("email", { email, callbackUrl: "/auth-callback" });
   }
 
   return (

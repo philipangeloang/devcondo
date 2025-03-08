@@ -14,8 +14,10 @@ const Admin = async ({ params }: { params: { username: string } }) => {
 
   if (!session) {
     redirect("/");
+    return; // Added return to prevent further execution
   }
 
+  // Redirect if the username is not the same as the session username (Someone trying to edit another user's admin page)
   if (session.user.username !== params.username) {
     redirect(`/${session.user.username}/admin`);
   }

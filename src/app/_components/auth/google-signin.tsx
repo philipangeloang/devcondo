@@ -8,7 +8,7 @@ const GoogleSignin = () => {
   return (
     <Button
       onClick={async () => {
-        await signIn("google", { callbackUrl: "/admin" });
+        await signIn("google", { callbackUrl: "/auth-callback" });
       }}
       className="hover:bg-main-violet flex h-12 w-full cursor-pointer gap-3 bg-[#E74133]"
     >

@@ -43,21 +43,28 @@ export const posts = createTable(
   }),
 );
 
-export const users = createTable("user", {
-  id: varchar("id", { length: 255 })
-    .notNull()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  customerId: varchar("customer_id", { length: 255 }),
-  name: varchar("name", { length: 255 }),
-  username: varchar("username", { length: 256 }).unique(),
-  email: varchar("email", { length: 255 }).notNull(),
-  emailVerified: timestamp("email_verified", {
-    mode: "date",
-    withTimezone: true,
-  }).default(sql`CURRENT_TIMESTAMP`),
-  image: varchar("image", { length: 255 }),
-});
+export const users = createTable(
+  "user",
+  {
+    id: varchar("id", { length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    customerId: varchar("customer_id", { length: 255 }),
+    name: varchar("name", { length: 255 }),
+    username: varchar("username", { length: 256 }).unique(),
+    email: varchar("email", { length: 255 }).notNull(),
+    emailVerified: timestamp("email_verified", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
+    image: varchar("image", { length: 255 }),
+    isDarkmodeAllowed: boolean("is_darkmode_allowed").notNull().default(false),
+  },
+  (user) => ({
+    usernameIdx: index("username_idx").on(user.username),
+  }),
+);
 
 export const usersRelations = relations(users, ({ many, one }) => ({
   accounts: many(accounts),
