@@ -13,7 +13,8 @@ import { useState } from "react";
 import Brand from "./brand";
 import Themer from "./themer";
 import NavCTA from "./nav-cta";
-
+import { api } from "@/trpc/react";
+import { useTheme } from "next-themes";
 type LinkItem = {
   title: string;
   href: string;
@@ -33,6 +34,7 @@ const Hamburger = ({
   brand = <Brand />, // Default to <Brand /> if no customBrand is provide
 }: HamburgerProps) => {
   const [open, setOpen] = useState(false);
+  const { data: user } = api.users.get.useQuery();
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -63,7 +65,7 @@ const Hamburger = ({
         {/* CTA BUTTONS & THEMING */}
         <div className="mt-auto flex flex-col gap-4 pt-6">
           {showNavCTA && <NavCTA />}
-          <Themer />
+          {user?.isDarkmodeAllowed && <Themer />}
         </div>
       </SheetContent>
     </Sheet>

@@ -9,7 +9,8 @@ import Content from "@/app/_page-sections/admin/content";
 import Footer from "@/app/_page-sections/admin/footer";
 import { redirect } from "next/navigation";
 
-const Admin = async ({ params }: { params: { username: string } }) => {
+const Admin = async (props: { params: Promise<{ username: string }> }) => {
+  const params = await props.params;
   const session = await auth();
 
   if (!session) {

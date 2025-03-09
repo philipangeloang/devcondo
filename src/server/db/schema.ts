@@ -22,27 +22,6 @@ import type { AdapterAccount } from "next-auth/adapters";
 export const createTable = pgTableCreator((name) => `devcondo_${name}`);
 
 // AUTH SCHEMA
-export const posts = createTable(
-  "post",
-  {
-    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-    name: varchar("name", { length: 256 }),
-    createdById: varchar("created_by", { length: 255 })
-      .notNull()
-      .references(() => users.id),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
-      () => new Date(),
-    ),
-  },
-  (example) => ({
-    createdByIdIdx: index("created_by_idx").on(example.createdById),
-    nameIndex: index("name_idx").on(example.name),
-  }),
-);
-
 export const users = createTable(
   "user",
   {
@@ -60,6 +39,8 @@ export const users = createTable(
     }).default(sql`CURRENT_TIMESTAMP`),
     image: varchar("image", { length: 255 }),
     isDarkmodeAllowed: boolean("is_darkmode_allowed").notNull().default(false),
+    isDeployed: boolean("is_deployed").notNull().default(false),
+    isResumePublic: boolean("is_resume_public").notNull().default(false),
   },
   (user) => ({
     usernameIdx: index("username_idx").on(user.username),

@@ -22,6 +22,7 @@ import { SettingsForm } from "@/app/_components/blocks/settings-form";
 import { useState } from "react";
 import { Button } from "@/app/_components/ui/button";
 import { IconPlus } from "@tabler/icons-react";
+import DeployCard from "@/app/_components/blocks/deploy-card";
 
 const Content = () => {
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
@@ -122,9 +123,10 @@ const Content = () => {
           </Card>
         </TabsContent>
         <TabsContent value="settings">
+          <DeployCard />
           <Card>
             <CardHeader>
-              <CardTitle>Site Settings</CardTitle>
+              <CardTitle>Account Settings</CardTitle>
               <CardDescription>
                 Customize the appearance and behavior of your portfolio
               </CardDescription>
